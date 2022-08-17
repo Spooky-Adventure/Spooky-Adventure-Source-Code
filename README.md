@@ -8,6 +8,7 @@ Here's the source code of **SUPER MARIO SPOOKY ADVENTURE**, a hack for NSMBW. As
 - Updating of Newer-related names to Spooky Adventure (renamed the folders and project stuffs)
 - Slight cleanup
 - Other miscellaneous changes
+
 If you want to follow development, join our [Discord Server][discord].
 
 *-MandyIGuess, 4th August 2022*
