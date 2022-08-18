@@ -545,6 +545,22 @@ void dWMMap_c::renderer_c::loadCamera(Mtx m) {
 	GXLoadPosMtxImm(m, GX_PNMTX0);
 }
 
+
+
+void dWMMap_c::doEffects() {
+	int mapID = dScKoopatlas_c::instance->currentMapID;
+
+	// Note: effect::spawn() takes name, unk, pos, rot, scale
+	const S16Vec efRot = {0x1800, 0, 0};
+
+	if (mapID == 2) {
+		// Koopa Castle Map
+		const VEC3 efPos = {2200.0f, -2000.0f, 7000.0f};
+		effects[0].spawn("Wm_cs_firespark", 0, &efPos, &efRot, 0);
+	}
+
+}
+
 void dWMMap_c::spinLaunchStar() {
 	nw4r::g3d::ResFile lsRes(getResource("StarRing", "g3d/StarRing.brres"));
 	nw4r::g3d::ResAnmChr lsAnm = lsRes.GetResAnmChr("StarRing_shot");
