@@ -2,16 +2,10 @@
 #include "fileload.h"
 #include "nsmbwVer.h"
 
-#if defined(ANOTHER_WII)
-#define GAME_NAME "Another 2.10"
-#elif defined(HOLIDAY_SPECIAL)
-#define GAME_NAME "NerXMAS v1.10"
-#elif defined(SUMMER_SUN)
-#define GAME_NAME "SumSun v1.10"
-#elif defined(FALLING_LEAF)
-#define GAME_NAME "Newer FL v1.10"
-#elif defined(NEWER_WII)
-#define GAME_NAME "Newer Wii v1.30"
+#if defined(SPOOKY_ADVENTURE)
+#define GAME_NAME "SpookyAdv v1.00"
+#elif defined(SPOOKY_DEBUG)
+#define GAME_NAME "Spooky DEBUG Version"
 #else
 #define GAME_NAME "The game"
 #endif
@@ -144,7 +138,7 @@ void PrintContext(u16 OSError, void *_osContext, u32 _dsisr, u32 _dar)
 {
     OSContext *osContext = (OSContext *)_osContext;
 	
-    nw4r::db::Exception_Printf_("Whoops! " GAME_NAME " [%s] has crashed - %s\n\nPlease send the information below to\nspookyadventureteam@gmail.com, or DM MandyIGuess#9999 on Discord\nYou can scroll through this report using the D-Pad.\n\n", GetRegionAndVersion(), GetErrorDescription(OSError));
+    nw4r::db::Exception_Printf_("Yikes! It appears " GAME_NAME " [VERSION: %s] has crashed - %s\n\nPlease send the information below to\nspookyadventureteam@gmail.com, or DM MandyIGuess#9999 on Discord\nYou can scroll through this report using the D-Pad.\n\n", GetRegionAndVersion(), GetErrorDescription(OSError));
     nw4r::db::Exception_Printf_("SRR0: %08X | DSISR: %08X | DAR: %08X\n", osContext->srr[0]);
 
     if (gprFun)
