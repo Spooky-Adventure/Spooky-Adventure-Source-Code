@@ -3,22 +3,16 @@
 
 ### Preamble
 
-Here's the source code of **SUPER MARIO SPOOKY ADVENTURE**, a hack for NSMBW. As of right now, things are mostly unfinished, however that *is* subject to change. Feel free to look in here, and use whatever's here. Currently, all that's been done is:
-- Removal of building tools/code for other Newer Team projects
-- Updating of Newer-related names to Spooky Adventure (renamed the folders and project stuffs)
-- Slight cleanup
-- Other miscellaneous changes
+Here's the source code of **SUPER MARIO SPOOKY ADVENTURE**. It compiles, as far as I know. There's no notable new features, just some hardcoding changes and stuff like that.
 
-If you want to follow development, join our [Discord Server][discord].
-
-*-MandyIGuess, 4th August 2022*
+*-MandyIGuess, 1st February 2023*
 
 ### Licensing
 
 The Spooky Adventure source code and tools are released under the MIT license.
 See the `LICENSE` file in this repository for full details.
 
-Copyright (c) 2022 Spooky Adventure Team
+Copyright (c) 2022/2023 Spooky Adventure Team
 
 ### Requirements
 
@@ -102,5 +96,3 @@ The resulting output is placed in a folder called `Build_X`
 https://devkitpro.org/wiki/Getting_Started
 [Wine]:
 https://www.winehq.org/
-[discord]:
-https://discord.gg/af4TBAuZBr
