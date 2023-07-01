@@ -3,7 +3,7 @@
 
 ### Preamble
 
-Here's the source code of **SUPER MARIO SPOOKY ADVENTURE**, a hack for NSMBW. As of right now, things are mostly unfinished, however that *is* subject to change. Feel free to look in here, and use whatever's here. Currently, all that's been done is:
+Here's the source code of Super Mario Spooky Adventure, a hack for NSMBW. As of right now, things are mostly unfinished, however that *is* subject to change. Feel free to look in here, and use whatever's here. Currently, all that's been done is:
 - Removal of building tools/code for other Newer Team projects
 - Updating of Newer-related names to Spooky Adventure (renamed the folders and project stuffs)
 - Slight cleanup
@@ -11,14 +11,14 @@ Here's the source code of **SUPER MARIO SPOOKY ADVENTURE**, a hack for NSMBW. As
 
 If you want to follow development, join our [Discord Server][discord].
 
-*-MandyIGuess, 4th August 2022*
+*- mandy, 4th August 2022*
 
 ### Licensing
 
 The Spooky Adventure source code and tools are released under the MIT license.
 See the `LICENSE` file in this repository for full details.
 
-Copyright (c) 2022 Spooky Adventure Team
+Copyright (c) 2022/2023 Spooky Adventure Team
 
 ### Requirements
 
@@ -81,20 +81,18 @@ Full setup instructions are included below.
 
 ### Usage
 
-There are two scripts in the Kamek folder that invoke `makeGame.py`, which will build the mod in two different ways.
+There is a script in the Kamek folder that invokes `makeGame.py`, which will build the project.
 
-- makeSpookyAdv (regular Spooky Adventure, doesn't have any sort of debugging features, or other features that are commented out)
-- makeSpookyDebug (has extra debugging and other misc features in it, that aren't compiled with regular SpookyAdv)
+- makeSpookyAdv
 
-On Windows, run the batch versions - you can just double-click them.
+On Windows, run the batch version - you can just double-click them.
 
-On macOS, Linux, or other Unix-like systems, use the bash versions.
-Open a terminal in the same directory and run them like:
+On macOS, Linux, or other Unix-like systems, use the bash version.
+Open a terminal in the same directory and run it like:
 
 `./makeSpookyAdv`
 
-The resulting output is placed in a folder called `Build_X`
-(where X is the name of the Kamek project). These files go in `/SpookyRes` on the game disc.
+The resulting output is placed in a folder called `Build_SpookyProject`. These files go in `/SpookyRes` on the game disc.
 
 [cw]: http://cache.nxp.com/lgfiles/devsuites/PowerPC/CW55xx_v2_10_SE.exe?WT_TYPE=IDE%20-%20Debug,%20Compile%20and%20Build%20Tools&WT_VENDOR=FREESCALE&WT_FILE_FORMAT=exe&WT_ASSET=Downloads&fileExt=.exe
 [cwIA]: http://web.archive.org/web/20160602205749/http://www.nxp.com/products/software-and-tools/software-development-tools/codewarrior-development-tools/downloads/special-edition-software:CW_SPECIALEDITIONS
@@ -103,4 +101,4 @@ https://devkitpro.org/wiki/Getting_Started
 [Wine]:
 https://www.winehq.org/
 [discord]:
-https://discord.gg/af4TBAuZBr
+https://discord.gg/fW5D3b6WQ8

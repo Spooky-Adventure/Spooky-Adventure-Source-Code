@@ -3,9 +3,7 @@
 #include "nsmbwVer.h"
 
 #if defined(SPOOKY_ADVENTURE)
-#define GAME_NAME "SpookyAdv v1.00"
-#elif defined(SPOOKY_DEBUG)
-#define GAME_NAME "Spooky DEBUG Version"
+#define GAME_NAME "Spooky v1.00"
 #else
 #define GAME_NAME "The game"
 #endif
