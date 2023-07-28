@@ -129,7 +129,9 @@ void dMsgBoxManager_c::showMessage(int id, bool canCancel, int delay) {
 	}
 
 	layout.findTextBoxByName("T_title")->SetString(title);
+	layout.findTextBoxByName("T_titleShad")->SetString(title); // drop shadow
 	layout.findTextBoxByName("T_msg")->SetString(msg);
+	layout.findTextBoxByName("T_msgShad")->SetString(msg); // also drop shadow
 
 	this->canCancel = canCancel;
 	this->delay = delay;
