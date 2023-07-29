@@ -47,6 +47,11 @@ hooks:
 
 # The below was added by Tempus
 
+  - name: TEX_Polter
+    type: branch_insn
+    branch_type: bl
+    src_addr_pal: 0x80a86940
+    target_func: 'TEX_Polter'
 
   - name: TEX_Goomba
     type: branch_insn

@@ -410,6 +410,8 @@ TEX_IgaPuku:
 	b GetTexFilenameForR5
 
 
+.global TEX_Polter
+TEX_Polter:
 .global TEX_BigGoomba
 TEX_BigGoomba:
 .global TEX_Barrel
