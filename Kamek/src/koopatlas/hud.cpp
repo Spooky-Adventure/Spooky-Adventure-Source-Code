@@ -355,6 +355,9 @@ void dWMHud_c::loadFooterInfo() {
 
 	WorldName->colour1 = save->hudTextColours[0];
 	WorldName->colour2 = save->hudTextColours[1];
+	
+	LevelName->colour1 = save->hudTextColours[0];
+	LevelName->colour2 = save->hudTextColours[1];
 
 	footerCol.colourise(save->hudHintH%1000, save->hudHintS, save->hudHintL);
 
