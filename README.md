@@ -3,15 +3,16 @@
 
 ### Preamble
 
-Here's the source code of Super Mario Spooky Adventure, a hack for NSMBW. As of right now, things are mostly unfinished, however that *is* subject to change. Feel free to look in here, and use whatever's here. Currently, all that's been done is:
-- Removal of building tools/code for other Newer Team projects
+Here's the source code of Super Mario Spooky Adventure, a work-in-progress hack for NSMBW. Feel free to look around and use whatever's here.
+If you have any questions, or simply want to follow development of the mod, join our [Discord Server][discord].
+
+Here's a list of the biggest changes made so far:
+- Removal of building tools (and some code) for other Newer Team projects
 - Updating of Newer-related names to Spooky Adventure (renamed the folders and project stuffs)
 - Slight cleanup
-- Other miscellaneous changes
+- Other miscellaneous changes & additions
 
-If you want to follow development, join our [Discord Server][discord].
-
-*- mandy, 4th August 2022*
+*- MandyIGuess, 4th August 2022*
 
 ### Licensing
 
@@ -81,9 +82,7 @@ Full setup instructions are included below.
 
 ### Usage
 
-There is a script in the Kamek folder that invokes `makeGame.py`, which will build the project.
-
-- makeSpookyAdv
+There is a `makeSpookyAdv` script in the Kamek folder that invokes `makeGame.py`, which will build the project.
 
 On Windows, run the batch version - you can just double-click them.
 
