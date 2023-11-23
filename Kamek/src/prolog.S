@@ -61,7 +61,7 @@ startLoop:
 
 .data
 PMsg:
-	.string "Newer Super Mario Bros. Wii - Hacks by Newer Team 2009-2013\nNewer v1.30\n.ctors: %p - %p\n"
+	.string "Super Mario Spooky Adventure - Based on NewerSMBW v1.30\nSpooky v1.0.0\n.ctors: %p - %p\n"
 
 PMsg2:
 	.string "%d inits called\n"
