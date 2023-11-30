@@ -3,7 +3,7 @@
 #include "nsmbwVer.h"
 
 #if defined(SPOOKY_ADVENTURE)
-#define GAME_NAME "Spooky v1.00"
+#define GAME_NAME "Spooky 1.0.0"
 #else
 #define GAME_NAME "The game"
 #endif
@@ -136,7 +136,7 @@ void PrintContext(u16 OSError, void *_osContext, u32 _dsisr, u32 _dar)
 {
     OSContext *osContext = (OSContext *)_osContext;
 	
-    nw4r::db::Exception_Printf_("Yikes! It appears " GAME_NAME " [VERSION: %s] has crashed - %s\n\nPlease send the information below to\nspookyadventureteam@gmail.com, or DM MandyIGuess#9999 on Discord\nYou can scroll through this report using the D-Pad.\n\n", GetRegionAndVersion(), GetErrorDescription(OSError));
+    nw4r::db::Exception_Printf_("Yikes! " GAME_NAME " [GAME: %s] has crashed - %s\n\nPlease send the information below to\nspookyadventureteam@gmail.com\nYou can scroll through this report using the D-Pad.\n\n", GetRegionAndVersion(), GetErrorDescription(OSError));
     nw4r::db::Exception_Printf_("SRR0: %08X | DSISR: %08X | DAR: %08X\n", osContext->srr[0]);
 
     if (gprFun)
@@ -162,7 +162,7 @@ void PrintContext(u16 OSError, void *_osContext, u32 _dsisr, u32 _dar)
         nw4r::db::Exception_Printf_("%08X", stackPointer[1]);
         if (stackPointer[1] >= dlcode)
         {
-            nw4r::db::Exception_Printf_(" - %08X NewerASM", stackPointer[1] - dlcode);
+            nw4r::db::Exception_Printf_(" - %08X SpookyASM", stackPointer[1] - dlcode);
         }
         nw4r::db::Exception_Printf_("\n");
 
