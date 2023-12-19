@@ -17,3 +17,4 @@ Kamek/tools/__pycache__
 __pycache__
 .DS_Store
 Loader/Loader.bin
+Loader/*.exe

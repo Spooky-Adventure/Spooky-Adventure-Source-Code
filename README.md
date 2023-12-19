@@ -48,11 +48,15 @@ Full setup instructions are included below.
 
 ***Note: Compiling the loader isn't necessary if you're just editing the code in the Kamek folder.***
 
-There is a `compileLoader.bat` script in the Loader folder, running it will output a `Loader.bin` file.
+- Install devkitPro's devkitPPC. Official instructions for this are found [here][dkp].
 
-Copy the outputed file to the root of the Riivolution patch.
+Once that is installed, there is a `compileLoader.bat` script in the Loader folder, running it will output a `Loader.bin` file.
+
+The outputed file goes in the root of the Riivolution patch.
 
 ### Setup
+
+This focuses on compiling the code in the Kamek folder.
 
 - First install Python 3. If on Windows, ensure it is added to PATH
   upon installation. Next, run:
