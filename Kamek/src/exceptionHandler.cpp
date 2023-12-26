@@ -12,7 +12,7 @@ const bool dsisrFun = false;
 const bool gprFun = false;
 
 u32 srr0;
-const u32 dlcode = 0x80DFBCC0;
+const u32 dlcode = 0x80D26040;
 
 struct OSContext
 {
@@ -91,21 +91,21 @@ char *GetRegionAndVersion()
 	switch(version)
 	{
 		case pal:
-			return "PALv1";
+			return "EUv1";
 		case pal2:
-			return "PALv2";
+			return "EUv2";
 		case ntsc:
-			return "NTSCv1";
+			return "USv1";
 		case ntsc2:
-			return "NTSCv2";
+			return "USv2";
 		case jpn:
-			return "JPNv1";
+			return "JPv1";
 		case jpn2:
-			return "JPNv2";
+			return "JPv2";
 		case kor:
-			return "kor";
+			return "KOR";
 		case twn:
-			return "twn";
+			return "TWN";
 		default:
 			return "UNKNOWN";
 	}
@@ -136,7 +136,7 @@ void PrintContext(u16 OSError, void *_osContext, u32 _dsisr, u32 _dar)
 {
     OSContext *osContext = (OSContext *)_osContext;
 	
-    nw4r::db::Exception_Printf_("Yikes! " GAME_NAME " [GAME: %s] has crashed - %s\n\nPlease send the information below to\nspookyadventureteam@gmail.com\nYou can scroll through this report using the D-Pad.\n\n", GetRegionAndVersion(), GetErrorDescription(OSError));
+    nw4r::db::Exception_Printf_("Yikes! " GAME_NAME " [DISC: %s] has crashed - %s\n\nPlease send the information below to\nspookyadventureteam@gmail.com\nYou can scroll through this report using the D-Pad.\n\n", GetRegionAndVersion(), GetErrorDescription(OSError));
     nw4r::db::Exception_Printf_("SRR0: %08X | DSISR: %08X | DAR: %08X\n", osContext->srr[0]);
 
     if (gprFun)
