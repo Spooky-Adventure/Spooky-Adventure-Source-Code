@@ -13,6 +13,8 @@ source_files:
   - ../src/koopatlas/mapdata.cpp
   - ../src/koopatlas/pathmanager.cpp
   - ../src/koopatlas/shop.cpp
+  - ../src/koopatlas/mapsign.cpp
+# - ../src/koopatlas/worldSelect.cpp
   - ../src/koopatlas/starcoin.cpp
   - ../src/koopatlas/mapmusic.cpp
   - ../src/texmapcolouriser.cpp
@@ -48,18 +50,27 @@ hooks:
     src_addr_pal: 0x80986074
     target_func: 'dWMShop_c::build(void)'
 
+  - name: BuildWMSign # WM_BOARD
+    type: add_func_pointer
+    src_addr_pal: 0x80981CA0
+    target_func: 'dWMSign_c::build(void)'
+
+#  - name: BuildWMSelect # WM_DIRECTOR
+#    type: add_func_pointer
+#    src_addr_pal: 0x80987BD8
+#    target_func: 'dWMSelect_c::build(void)'
+
   - name: BuildWMdStarCoin # WM_GHOST
     type: add_func_pointer
     src_addr_pal: 0x80982D1C
     target_func: 'dWMStarCoin_c::build(void)'
 
-
 # fix the STOCK_ITEM references
-  - name: StockItemFix
-    type: patch
-    addr_ntsc: 0x80101110
-    addr_pal: 0x80101220
-    data: '4E800020'
+  #- name: StockItemFix
+  #  type: patch
+  #  addr_ntsc: 0x80101110
+  #  addr_pal: 0x80101220
+  #  data: '4E800020'
 
 # this isn't used!
   - name: WMDrawFuncFix
@@ -71,7 +82,7 @@ hooks:
 #  - name: WMEffectFixTry
 #    type: patch
 #    addr_pal: 0x80124DCC
-#    data: '2800000D'
+#    data: '28000003'
 #  - name: WMEffectDebug
 #    type: branch_insn
 #    src_addr_pal: 0x802863AC #Effect::Calc

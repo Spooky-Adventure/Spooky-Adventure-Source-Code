@@ -193,9 +193,12 @@ void daCaptainBowser::spriteCollision(ActivePhysics *apThis, ActivePhysics *apOt
 		PlaySound(apOther->owner, SE_BOSS_CMN_STOMPED);
 		apOther->owner->Delete(1);
 
-		if (this->damage == this->maxDamage/2) 	{ doStateChange(&StateID_Roar); }
-		else if (this->damage < 0)  			{ initiateDeathSequence(); }
-		else 									{ doStateChange(&StateID_Damage); }
+		// Quick testing, kills Bowser immediately
+		initiateDeathSequence();
+
+		//if (this->damage == this->maxDamage/2) 	{ doStateChange(&StateID_Roar); }
+		//else if (this->damage < 0)  			{ initiateDeathSequence(); }
+		//else 									{ doStateChange(&StateID_Damage); }
 	}
 }
 

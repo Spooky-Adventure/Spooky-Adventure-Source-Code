@@ -172,7 +172,7 @@ void daFakeStarCoin::updateModelMatrices() {
 int daFakeStarCoin::onExecute() {
 	updateModelMatrices();
 
-	this->rot.x += 0x200;
+	this->rot.y += 0x200; // TODO: Check if this turns it left or right (we want right)
 	return true;
 }
 

@@ -147,76 +147,56 @@ int dWMShop_c::onCreate() {
 		}
 
 		static const char *brlanNames[] = {
-			"shop_Show.brlan",
-			"shop_Hide.brlan",
+			"shop_inWindow.brlan",
+			"shop_outWindow.brlan",
 			"shop_ActivateButton.brlan",
 			"shop_DeactivateButton.brlan",
-			"shop_CountCoin.brlan"
+			"shop_CountCoin.brlan",
+			"shop_BuyItem.brlan"
 		};
 		static const char *groupNames[] = {
-			"BaseGroup", "BaseGroup",
-			"GBtn00", "GBtn01", "GBtn02", "GBtn03", "GBtn1", "GBtn2",
-			"GBtn00", "GBtn01", "GBtn02", "GBtn03", "GBtn1", "GBtn2",
-			"GCoinCount"
+			"A00_Window", "A00_Window",
+			"B00_BtnSmall", "B01_BtnSmall", "B02_BtnSmall", "B03_BtnSmall", "C00_BtnLarge", "C01_BtnLarge",
+			"B00_BtnSmall", "B01_BtnSmall", "B02_BtnSmall", "B03_BtnSmall", "C00_BtnLarge", "C01_BtnLarge",
+			"D00_CoinCount",
+			"B00_BtnSmall", "B01_BtnSmall", "B02_BtnSmall", "B03_BtnSmall", "C00_BtnLarge", "C01_BtnLarge",
 		};
 		static const int brlanIDs[] = {
 			0, 1,
 			2, 2, 2, 2, 2, 2,
 			3, 3, 3, 3, 3, 3,
 			4,
+			5, 5, 5, 5, 5, 5,
 		};
 
-		layout.loadAnimations(brlanNames, 5);
-		layout.loadGroups(groupNames, brlanIDs, 15);
+		layout.loadAnimations(brlanNames, 6);
+		layout.loadGroups(groupNames, brlanIDs, 21);
 		layout.disableAllAnimations();
 
 		layout.drawOrder = 1;
 
 		static const char *tbNames[] = {
-			"Title", "TitleShadow",
-			"CoinCount", "CoinCountShadow",
-			"BackText", "BuyText",
+			"T_title_00", "T_titleS_00",
+			"T_x_00", "T_coinTitle_00",
+			"T_coinUnspent_00", "T_coinUnspentS_00",
+			"T_back_00", "T_buy_00",
 		};
-		layout.getTextBoxes(tbNames, &Title, 6);
+		layout.getTextBoxes(tbNames, &T_title_00, 8);
+		
+		static const char *picNames[] = {
+			"P_btnSmBG_00", "P_btnSmBG_01",
+			"P_btnSmBG_02", "P_btnSmBG_03",
+			"P_btnLgBG_00", "P_btnLgBG_01",
+		};
+		layout.getPictures(picNames, &P_btnSmBG_00, 6);
 
-		// Warning: weird code coming up
-		const char *crap = "000102031\0" "2\0";
-		char name[12];
-		for (int i = 0; i < 6; i++) {
-			strcpy(name, "BtnLeftXX");
-			name[7] = crap[i*2];
-			name[8] = crap[i*2+1];
-			BtnLeft[i] = layout.findPictureByName(name);
-
-			strcpy(name, "BtnMidXX");
-			name[6] = crap[i*2];
-			name[7] = crap[i*2+1];
-			BtnMid[i] = layout.findPictureByName(name);
-
-			strcpy(name, "BtnRightXX");
-			name[8] = crap[i*2];
-			name[9] = crap[i*2+1];
-			BtnRight[i] = layout.findPictureByName(name);
-
-			strcpy(name, "BtnXX");
-			name[3] = crap[i*2];
-			name[4] = crap[i*2+1];
-			Buttons[i] = layout.findPaneByName(name);
-		}
-
-		Btn1Base = layout.findPaneByName("Btn1_Base");
-		Btn2Base = layout.findPaneByName("Btn2_Base");
-		OSReport("Found btn 1,2: %p, %p\n", Btn1Base, Btn2Base);
-
-		leftCol.setTexMap(BtnLeft[0]->material->texMaps);
-		midCol.setTexMap(BtnMid[0]->material->texMaps);
-		rightCol.setTexMap(BtnRight[0]->material->texMaps);
-
-		for (int i = 1; i < 6; i++) {
-			leftCol.applyAlso(BtnLeft[i]->material->texMaps);
-			midCol.applyAlso(BtnMid[i]->material->texMaps);
-			rightCol.applyAlso(BtnRight[i]->material->texMaps);
-		}
+		// Button names
+		static const char *btnNames[] = {
+			"N_buttonSmall_00", "N_buttonSmall_01",
+			"N_buttonSmall_02", "N_buttonSmall_03",
+			"N_buttonLarge_00", "N_buttonLarge_01",
+		};
+		layout.getPanes(btnNames, &N_buttonSmall_00, 6);
 
 		layoutLoaded = true;
 	}
@@ -441,7 +421,7 @@ void dWMShop_c::loadModels() {
 	lakituModel = new ShopModel_c;
 	lakituModel->setupLakitu(shopKind);
 	lakituModel->x = 240.0f;
-	lakituModel->y = 220.0f;
+	lakituModel->y = 245.0f;
 	if (!IsWideScreen()) {
 		lakituModel->x = (0.731f * (lakituModel->x + 416.0f)) - 292.0f;
 		lakituModel->y *= 0.7711f;
@@ -493,11 +473,7 @@ void dWMShop_c::deleteModels() {
 void dWMShop_c::loadInfo() {
 	SaveBlock *save = GetSaveFile()->GetBlock(-1);
 
-	leftCol.colourise(save->hudHintH, save->hudHintS, save->hudHintL);
-	midCol.colourise(save->hudHintH, save->hudHintS, save->hudHintL);
-	rightCol.colourise(save->hudHintH, save->hudHintS, save->hudHintL);
-
-	// find out the shop name
+	// Find out the Shop name
 	dLevelInfo_c::entry_s *shopNameEntry =
 		dLevelInfo_c::s_info.searchBySlot(shopKind, 98);
 
@@ -513,17 +489,30 @@ void dWMShop_c::loadInfo() {
 	}
 	shopName[charCount] = 0;
 
-	Title->SetString(shopName);
-	TitleShadow->SetString(shopName);
+	T_title_00->SetString(shopName);
+	T_titleS_00->SetString(shopName);
+	
+	// Recolor the Shop name
+	T_title_00->colour1 = save->hudTextColours[0];
+	T_title_00->colour2 = save->hudTextColours[1];
 
-	// load the coin count
+	// Load the coin count
 	int scCount = getUnspentStarCoinCount();
-	WriteNumberToTextBox(&scCount, CoinCount, false);
-	WriteNumberToTextBox(&scCount, CoinCountShadow, false);
+	WriteNumberToTextBox(&scCount, T_coinUnspent_00, false);
+	WriteNumberToTextBox(&scCount, T_coinUnspentS_00, false);
+	
+	// Recolor it grey if there's no coins
+	if (scCount == 0) {
+		T_coinUnspent_00->colour1 = (GXColor){255,255,255,255};
+		T_coinUnspent_00->colour2 = (GXColor){97,97,97,255};
+		
+		T_x_00->colour1 = (GXColor){255,255,255,255};
+		T_x_00->colour2 = (GXColor){97,97,97,255};
+	}
 
-
-	WriteBMGToTextBox(BackText, GetBMG(), 2, 58, 0);
-	WriteBMGToTextBox(BuyText, GetBMG(), 302, 4, 0);
+	WriteBMGToTextBox(T_back_00, GetBMG(), 2, 58, 0); // 570
+	WriteBMGToTextBox(T_buy_00, GetBMG(), 302, 4, 0); // 77316
+	WriteBMGToTextBox(T_coinTitle_00, GetBMG(), 302, 5, 0); // 77317
 }
 
 
@@ -544,6 +533,7 @@ void dWMShop_c::buyItem(int item) {
 		return;
 	}
 
+	layout.enableNonLoopAnim(BUY_ITEM+selected);
 	MapSoundPlayer(SoundRelatedClass, SE_SYS_DECIDE, 1);
 
 	SaveFile *file = GetSaveFile();
@@ -596,19 +586,27 @@ void dWMShop_c::endState_CoinCountdown() { }
 void dWMShop_c::executeState_CoinCountdown() {
 	timerForCoinCountdown--;
 	if (timerForCoinCountdown <= 0) {
-
 		SaveBlock *save = GetSaveFile()->GetBlock(-1);
 		save->spentStarCoins++;
 
 		// load the coin count
 		int scCount = getUnspentStarCoinCount();
-		WriteNumberToTextBox(&scCount, CoinCount, false);
-		WriteNumberToTextBox(&scCount, CoinCountShadow, false);
+		WriteNumberToTextBox(&scCount, T_coinUnspent_00, false);
+		WriteNumberToTextBox(&scCount, T_coinUnspentS_00, false);
+		
+		// Recolor it grey if the amount is 0
+		if (scCount == 0) {
+			T_coinUnspent_00->colour1 = (GXColor){255,255,255,255};
+			T_coinUnspent_00->colour2 = (GXColor){97,97,97,255};
+			
+			T_x_00->colour1 = (GXColor){255,255,255,255};
+			T_x_00->colour2 = (GXColor){97,97,97,255};
+		}
 
 		layout.enableNonLoopAnim(COUNT_COIN);
 		VEC3 efPos = {
-			CoinCount->effectiveMtx[0][3],
-			CoinCount->effectiveMtx[1][3],
+			T_coinUnspent_00->effectiveMtx[0][3],
+			T_coinUnspent_00->effectiveMtx[1][3],
 			0.0f};
 
 		// ARGHHHHHHHHHHHHHHHHh.
@@ -618,16 +616,16 @@ void dWMShop_c::executeState_CoinCountdown() {
 				div = 3.6f;
 			if (scCount < 10)
 				div = 2.7f;
-			efPos.x -= (CoinCount->size.x / div);
-			efPos.y -= (CoinCount->size.y / 2.0f);
+			efPos.x -= (T_coinUnspent_00->size.x / div);
+			efPos.y -= (T_coinUnspent_00->size.y / 2.0f);
 		} else {
 			float div = 5.8f;
 			if (scCount < 100)
 				div = 8.2f;
 			if (scCount < 10)
 				div = 14.5f;
-			efPos.x += (CoinCount->size.x / div);
-			efPos.y -= (CoinCount->size.y / 2.8f);
+			efPos.x += (T_coinUnspent_00->size.x / div);
+			efPos.y -= (T_coinUnspent_00->size.y / 2.8f);
 		}
 
 		VEC3 efScale = {0.7f, 0.7f, 0.7f};
@@ -647,9 +645,12 @@ void dWMShop_c::executeState_CoinCountdown() {
 
 void dWMShop_c::showSelectCursor() {
 	switch (selected) {
-		case 4: UpdateSelectCursor(Btn1Base, 0, false); break;
-		case 5: UpdateSelectCursor(Btn2Base, 0, false); break;
-		default: UpdateSelectCursor(Buttons[selected], 0, false);
+		case 0: UpdateSelectCursor(P_btnSmBG_00, 0, false); break;
+		case 1: UpdateSelectCursor(P_btnSmBG_01, 0, false); break;
+		case 2: UpdateSelectCursor(P_btnSmBG_02, 0, false); break;
+		case 3: UpdateSelectCursor(P_btnSmBG_03, 0, false); break;
+		case 4: UpdateSelectCursor(P_btnLgBG_00, 0, false); break;
+		case 5: UpdateSelectCursor(P_btnLgBG_01, 0, false); break;
 	}
 }
 

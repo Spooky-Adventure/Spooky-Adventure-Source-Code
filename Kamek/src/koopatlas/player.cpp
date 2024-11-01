@@ -141,6 +141,18 @@ void daWMPlayer_c::startAnimation(int id, float frame, float unk, float updateRa
 		bindPats();
 }
 
+
+// Mainly used for entering/exit menus
+void daWMPlayer_c::resizePlayer(float x, float y, float z) {
+	mMtx myMatrix;
+
+	//x -= 0x200;
+	//y -= 0x200;
+	//z -= 0x200;
+	myMatrix.scale(x, y, z);
+}
+
+
 void daWMPlayer_c::bindPats() {
 	dPlayerModel_c *pm = (dPlayerModel_c*)modelHandler->mdlClass;
 	int id = pm->currentPlayerModelID;

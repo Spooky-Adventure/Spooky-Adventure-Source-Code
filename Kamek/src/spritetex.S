@@ -355,9 +355,10 @@ TEX_BigBoo:
 	andi. r5, r5, 0xF
 	b GetTexFilenameForR5
 
-
 .global TEX_GabonRock
 TEX_GabonRock:
+.global TEX_Signboard
+TEX_Signboard:
 .global TEX_BigBlock
 TEX_BigBlock:
 .global TEX_Manta
@@ -410,8 +411,27 @@ TEX_IgaPuku:
 	b GetTexFilenameForR5
 
 
+.global TEX_RotateMush
+TEX_RotateMush:
+	lwz r5, 4(r30)
+	srwi r5, r5, 24
+	andi. r5, r5, 0xF
+	b GetTexFilenameForR5
+
+.global TEX_RotateMushPink
+TEX_RotateMushPink:
+	lwz r5, 4(r30)
+	srwi r5, r5, 28 # Nybble 5, since 6 controls if it returns or not
+	andi. r5, r5, 0xF
+	b GetTexFilenameForR5
+	
+
 .global TEX_Polter
 TEX_Polter:
+.global TEX_Stand
+TEX_Stand:
+.global TEX_StandFix
+TEX_StandFix:
 .global TEX_BigGoomba
 TEX_BigGoomba:
 .global TEX_Barrel
@@ -470,6 +490,13 @@ TEX_BigIcicle:
 TEX_MushroomPlatform:
 	lwz r5, 4(r30)
 	srwi r5, r5, 20
+	andi. r5, r5, 0xF
+	b GetTexFilenameForR5
+
+.global TEX_TowerSpikeWall
+TEX_TowerSpikeWall:
+	lwz r5, 4(r27)
+	srwi r5, r5, 28
 	andi. r5, r5, 0xF
 	b GetTexFilenameForR5
 
@@ -1779,4 +1806,3 @@ CloudC:
 .align 4
 
 Float_5000: .float 5000.0
-

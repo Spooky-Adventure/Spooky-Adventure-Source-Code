@@ -103,9 +103,9 @@ char *GetRegionAndVersion()
 		case jpn2:
 			return "JPv2";
 		case kor:
-			return "KOR";
+			return "KR";
 		case twn:
-			return "TWN";
+			return "TW";
 		default:
 			return "UNKNOWN";
 	}

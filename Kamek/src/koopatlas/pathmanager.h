@@ -46,6 +46,7 @@ class dWMPathManager_c {
 		void copyWorldDefToSave(const dKPWorldDef_s *world);
 
 		dKPLayer_s *pathLayer;
+		dKPNode_s *node;
 
 		bool firstPathDone;
 		bool isMoving;

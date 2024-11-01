@@ -9,6 +9,18 @@ hooks:
     src_addr_pal: 0x809B4420
     target_func: 'IcicleFix'
 
+  # Draws liquid fog always in front of Layer 0
+  # Patch by LiQ
+  - name: PermanentFrontFog
+    type: patch
+    addr_pal: 0x800eb354
+    data: '48000018'
+
+  #- name: ReplaceAmbThunderWithWind
+  #  type: patch
+  #  addr_pal: 0x808ac4f0
+  #  data: '38800313' # SE_AMB_SHIP_WIND
+
   - name: TryAndFixScoreGlitch
     type: branch_insn
     branch_type: bl
@@ -25,21 +37,35 @@ hooks:
     type: patch
     addr_pal: 0x809CB118
     data: '2C1C0003'
+
   - name: DisableTerrainShading
     type: patch
     addr_pal: 0x8008E6F8
     data: '38600000'
+  
+  # Taken from NSMBWerPlus, which takes it from NSMBW-Updated
+  - name: fixLightmapsForDolphin
+    type: branch_insn
+    branch_type: bl
+    src_addr_pal: 0x802cc5f4
+    target_func: 'fixLightmapsForDolphin'
 
   - name: TitleScreenFucker
     type: branch_insn
     branch_type: bl
     src_addr_pal: 0x8010191C
     target_func: 'TitleScreenFucker'
+
   - name: AnotherTSThing
     type: patch
     addr_pal: 0x8015D850
     data: '38600000'
 
+  # Take your level filename, remove the -, and subtract each number by 1
+  # So 02-05.arc would be 0104, 01-01.arc would be 0000, etc.
+  
+  # Also this list HAS to have 15 entries, if you have less than 15 levels
+  # you want to be used as title replays, just add some levels in twice
   - name: TitleReplayLevels
     type: patch
     addr_pal: 0x802F4CD0

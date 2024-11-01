@@ -48,9 +48,9 @@ else:
 build_folder = Path(f'Build_{project_name}')
 
 def copy_files(version_name_1: str, version_name_2: str) -> None:
-    (asm_folder / f'n_{version_name_1}_loader.bin').replace(build_folder / f'System{version_name_2}.bin')
-    (asm_folder / f'n_{version_name_1}_dlcode.bin').replace(build_folder / f'DLCode{version_name_2}.bin')
-    (asm_folder / f'n_{version_name_1}_dlrelocs.bin').replace(build_folder / f'DLRelocs{version_name_2}.bin')
+    (asm_folder / f'spooky_{version_name_1}_loader.bin').replace(build_folder / f'System{version_name_2}.bin')
+    (asm_folder / f'spooky_{version_name_1}_dlcode.bin').replace(build_folder / f'DLCode{version_name_2}.bin')
+    (asm_folder / f'spooky_{version_name_1}_dlrelocs.bin').replace(build_folder / f'DLRelocs{version_name_2}.bin')
 
 build_folder.mkdir(exist_ok=True)
 copy_files('pal', 'EU_1')

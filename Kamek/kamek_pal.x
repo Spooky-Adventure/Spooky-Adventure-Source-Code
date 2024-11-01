@@ -10,6 +10,11 @@ SECTIONS {
 	StartAnimOrig = 0x800D5EC0;
 	YoshiStateOrig = 0x8014BA60;
 	Exception_Printf___Q24nw4r2dbFPCce = 0x80234BC0;
+	
+	/* dGameDisplay_c */
+	instance__14dGameDisplay_c = 0x8042a608;
+	onCreate_orig__14dGameDisplay_cFv = 0x80157B70;
+	onExecute_orig__14dGameDisplay_cFv = 0x801580D0;
 
 	ContinueFromFuckLineLiftActivation = 0x80839B04;
 
@@ -175,8 +180,8 @@ SECTIONS {
 	RealWm2dPlayerDtor = 0x808C5500;
 
 	InsertIntIntoTextBox1 = 0x800B3BE0;
-	WriteNumberToTextBox__FPiPCiPQ34nw4r3lyt7TextBoxb = 0x800B3B60;
-	WriteNumberToTextBox__FPiPQ34nw4r3lyt7TextBoxb = 0x800B3BE0;
+	WriteNumberToTextBox__FPiPCiPQ34nw4r3lyt7TextBoxb = 0x800B3B60; /* Takes text length */
+	WriteNumberToTextBox__FPiPQ34nw4r3lyt7TextBoxb = 0x800B3BE0; /* Text length is whatever the fuck value it's printing */
 
 	__ct__20daJrClownForPlayer_cFv = 0x80810480;
 	__dt__20daJrClownForPlayer_cFv = 0x80810540; /* Beans indeed. */

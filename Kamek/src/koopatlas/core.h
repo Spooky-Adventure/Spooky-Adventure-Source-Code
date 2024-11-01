@@ -13,10 +13,12 @@
 #include "levelinfo.h"
 #include "koopatlas/mapdata.h"
 #include "koopatlas/shop.h"
+#include "koopatlas/mapsign.h"
 #include "koopatlas/starcoin.h"
 #include "koopatlas/hud.h"
 #include "koopatlas/pathmanager.h"
 #include "koopatlas/mapmusic.h"
+//#include "koopatlas/worldSelect.h"
 
 #define WM_DEBUGGING
 //#define WM_SPAMMY_DEBUGGING
@@ -35,17 +37,22 @@
 
 void NewerMapDrawFunc();
 
-#define WM_HUD WM_DANCE_PAKKUN
-#define WM_SHOP WM_TOGEZO
-#define WM_STARCOIN WM_GHOST
+#define WM_HUD 			WM_DANCE_PAKKUN
+#define WM_SHOP 		WM_TOGEZO
+#define WM_SIGN 		WM_BOARD
+//#define WM_SELECT 		WM_DIRECTOR
+#define WM_STARCOIN		WM_GHOST
 
 class daWMPlayer_c;
 class dWMMap_c;
 class dWMHud_c;
 class dWMShop_c;
+class dWMSign_c;
+//class dWMSelect_c;
 class dWMStarCoin_c;
 class dWorldCamera_c;
 
+			   
 class dScKoopatlas_c : public dScene_c {
 	public:
 		dScKoopatlas_c();
@@ -68,7 +75,9 @@ class dScKoopatlas_c : public dScene_c {
 		DECLARE_STATE(EasyPairingWait);
 		DECLARE_STATE(PowerupsWait);
 		DECLARE_STATE(ShopWait);
-		DECLARE_STATE(CoinsWait);
+		DECLARE_STATE(SignWait);
+		//DECLARE_STATE(WorldSelectWait);
+		DECLARE_STATE(CoinsWait);				
 		DECLARE_STATE(SaveOpen);
 		DECLARE_STATE(SaveSelect);
 		DECLARE_STATE(SaveWindowClose);
@@ -103,11 +112,13 @@ class dScKoopatlas_c : public dScene_c {
 		static dScKoopatlas_c *instance;
 
 
-		daWMPlayer_c *player;
-		dWMHud_c *hud;
-		dWMMap_c *map;
-		dWMShop_c *shop;
-		dWMStarCoin_c *coins;
+		daWMPlayer_c 		*player;
+		dWMHud_c 			*hud;
+		dWMMap_c 			*map;
+		dWMShop_c 			*shop;
+		dWMSign_c 			*sign;
+		//dWMSelect_c 		*select;
+		dWMStarCoin_c 		*coins;
 
 		int currentMapID;
 		const char *mapPath;
@@ -136,8 +147,9 @@ class dScKoopatlas_c : public dScene_c {
 		bool mapIsRunning();
 
 		void showSaveWindow();
-
+		
 		bool keepMusicPlaying;
+
 };
 
 extern void *_8042A788;

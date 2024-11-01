@@ -1,0 +1,7 @@
+---
+source_files: [../src/enemyArena.cpp]
+hooks:
+  - name: BuildArenaBalloon
+    type: add_func_pointer
+    src_addr_pal: 0x80AECD48
+    target_func: 'dArenaBalloon_c::build(void)'

@@ -507,12 +507,17 @@ void dWMMap_c::renderPathLayer(dKPLayer_s *layer) {
 		dKPNode_s *node = layer->nodes[i];
 
 		if (node->type == dKPNode_s::LEVEL) {
-			if (node->levelNumber[0] == 80)
+			int world = node->levelNumber[0];
+			int level = node->levelNumber[1];
+		
+			if (level == 80)
 				continue;
-
-			short rz = 0x6000;
+			
+			// Default node rotation
+			// NOTE: The node model itself is rotated 90 degrees to fix the position of the shine on it
 			short rx = 0x4000;
 			short ry = 0x8000;
+			short rz = 0x6000;
 
 			node->extra->matrix.translation(node->x, -node->y + 4.0, 498.0);
 			node->extra->matrix.applyRotationYXZ(&ry, &rx, &rz);
@@ -521,7 +526,11 @@ void dWMMap_c::renderPathLayer(dKPLayer_s *layer) {
 			node->extra->model.calcWorld(false);
 
 			node->extra->model.scheduleForDrawing();
+			
+			// Plays node CLR anims from mapdata
+			node->extra->modelAnimClr.process();
 		}
+		
 	}
 }
 

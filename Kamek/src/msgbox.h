@@ -18,6 +18,9 @@ class dMsgBoxManager_c : public dStageActor_c {
 		int afterExecute(int) { return true; }
 		int beforeDraw() { return true; }
 		int afterDraw(int) { return true; }
+		
+		nw4r::lyt::TextBox *T_title_00, *T_message_00;
+		nw4r::lyt::Picture *P_2btn_00;
 
 		m2d::EmbedLayout_c layout;
 		dDvdLoader_c msgDataLoader;

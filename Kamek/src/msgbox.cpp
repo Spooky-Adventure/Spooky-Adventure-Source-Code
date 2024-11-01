@@ -14,8 +14,12 @@ dMsgBoxManager_c *dMsgBoxManager_c::build() {
 	return c;
 }
 
-#define ANIM_BOX_APPEAR 0
-#define ANIM_BOX_DISAPPEAR 1
+
+
+#define ANIM_IN_WINDOW 0
+#define ANIM_OUT_WINDOW 1
+#define ANIM_LOOP_BUTTON 2
+#define ANIM_HIT_BUTTON 3
 
 extern int MessageBoxIsShowing;
 
@@ -23,27 +27,29 @@ extern int MessageBoxIsShowing;
 // Events
 int dMsgBoxManager_c::onCreate() {
 	if (!layoutLoaded) {
-		if (!layout.loadArc("msgbox.arc", false))
+		if (!layout.loadArc("messageBox.arc", false))
 			return false;
+		
+		layout.build("messageBox.brlyt");
 
-		static const char *brlanNames[2] = {
-			"BoxAppear.brlan",
-			"BoxDisappear.brlan",
+		static const char *brlanNames[4] = {
+			"messageBox_inWindow.brlan",
+			"messageBox_outWindow.brlan",
+			"messageBox_loopButton.brlan",
+			"messageBox_hitButton.brlan",
+		};
+		static const char *groupNames[4] = {
+			"A00_Window", "A00_Window",
+			"B00_2btn", "B00_2btn",
 		};
 
-		static const char *groupNames[2] = {
-			"G_Box", "G_Box",
-		};
-
-		layout.build("MessageBox.brlyt");
-
+		layout.loadAnimations(brlanNames, 4);
+		layout.loadGroups(groupNames, (int[4]){0,1,2,3}, 4);
+		layout.disableAllAnimations();
+		
 		if (IsWideScreen()) {
 			layout.layout.rootPane->scale.x = 0.7711f;
 		}
-
-		layout.loadAnimations(brlanNames, 2);
-		layout.loadGroups(groupNames, (int[2]){0,1}, 2);
-		layout.disableAllAnimations();
 
 		layout.drawOrder = 140;
 
@@ -88,7 +94,7 @@ int dMsgBoxManager_c::onDelete() {
 CREATE_STATE_E(dMsgBoxManager_c, LoadRes);
 
 void dMsgBoxManager_c::executeState_LoadRes() {
-	if (msgDataLoader.load("/NewerRes/Messages.bin")) {
+	if (msgDataLoader.load("/SpookyRes/Messages.bin")) {
 		state.setState(&StateID_Wait);
 	} else {
 	}
@@ -109,10 +115,16 @@ void dMsgBoxManager_c::showMessage(int id, bool canCancel, int delay) {
 		OSReport("ADD A MESSAGE BOX MANAGER YOU MORON\n");
 		return;
 	}
+	
+	// Get our 2 button and text panes
+	T_title_00 = layout.findTextBoxByName("T_title_00");
+	T_message_00 = layout.findTextBoxByName("T_message_00");
+	P_2btn_00 = layout.findPictureByName("P_2btn_00");
 
-	// get the data file
+	// Get the data file
 	header_s *data = (header_s*)msgDataLoader.buffer;
 
+	// Set these to 0 since we don't have any data yet
 	const wchar_t *title = 0, *msg = 0;
 
 	for (int i = 0; i < data->count; i++) {
@@ -123,19 +135,22 @@ void dMsgBoxManager_c::showMessage(int id, bool canCancel, int delay) {
 		}
 	}
 
+	// Couldn't find a message
 	if (title == 0) {
 		OSReport("Message Box: Message %08x not found\n", id);
+		// Insert some strings
+		T_title_00->SetString(L"Message Not Found!");
+		T_message_00->SetString(L"The message (ID: %08x) couldn't be found. Report this as a bug if you see it in-game.", id);
 		return;
 	}
 
-	layout.findTextBoxByName("T_title")->SetString(title);
-	layout.findTextBoxByName("T_titleShad")->SetString(title); // drop shadow
-	layout.findTextBoxByName("T_msg")->SetString(msg);
-	layout.findTextBoxByName("T_msgShad")->SetString(msg); // also drop shadow
+	// Insert message strings
+	T_title_00->SetString(title);
+	T_message_00->SetString(msg);
 
 	this->canCancel = canCancel;
 	this->delay = delay;
-	layout.findPictureByName("button")->SetVisible(canCancel);
+	P_2btn_00->SetVisible(canCancel);
 
 	state.setState(&StateID_BoxAppearWait);
 }
@@ -147,14 +162,17 @@ void dMsgBoxManager_c::beginState_BoxAppearWait() {
 	visible = true;
 	MessageBoxIsShowing = true;
 	StageC4::instance->_1D = 1; // enable no-pause
-	layout.enableNonLoopAnim(ANIM_BOX_APPEAR);
+	layout.resetAnim(ANIM_LOOP_BUTTON);
+	layout.enableNonLoopAnim(ANIM_IN_WINDOW);
 
 	nw4r::snd::SoundHandle handle;
 	PlaySoundWithFunctionB4(SoundRelatedClass, &handle, SE_SYS_KO_DIALOGUE_IN, 1);
 }
 
 void dMsgBoxManager_c::executeState_BoxAppearWait() {
-	if (!layout.isAnimOn(ANIM_BOX_APPEAR)) {
+	layout.enableLoopAnim(ANIM_LOOP_BUTTON);
+	
+	if (!layout.isAnimOn(ANIM_IN_WINDOW)) {
 		state.setState(&StateID_ShownWait);
 	}
 }
@@ -170,14 +188,17 @@ void dMsgBoxManager_c::executeState_ShownWait() {
 	if (canCancel) {
 		int nowPressed = Remocon_GetPressed(GetActiveRemocon());
 
-		if (nowPressed & WPAD_TWO)
+		if (nowPressed & WPAD_TWO) {
+			layout.enableNonLoopAnim(ANIM_HIT_BUTTON);
 			state.setState(&StateID_BoxDisappearWait);
+		}
 	}
 
 	if (delay > 0) {
 		delay--;
-		if (delay == 0)
+		if (delay == 0) {
 			state.setState(&StateID_BoxDisappearWait);
+		}
 	}
 }
 void dMsgBoxManager_c::endState_ShownWait() { }
@@ -187,14 +208,14 @@ void dMsgBoxManager_c::endState_ShownWait() { }
 CREATE_STATE(dMsgBoxManager_c, BoxDisappearWait);
 
 void dMsgBoxManager_c::beginState_BoxDisappearWait() {
-	layout.enableNonLoopAnim(ANIM_BOX_DISAPPEAR);
+	layout.enableNonLoopAnim(ANIM_OUT_WINDOW);
 
 	nw4r::snd::SoundHandle handle;
 	PlaySoundWithFunctionB4(SoundRelatedClass, &handle, SE_SYS_DIALOGUE_OUT_AUTO, 1);
 }
 
 void dMsgBoxManager_c::executeState_BoxDisappearWait() {
-	if (!layout.isAnimOn(ANIM_BOX_DISAPPEAR)) {
+	if (!layout.isAnimOn(ANIM_OUT_WINDOW)) {
 		state.setState(&StateID_Wait);
 
 		for (int i = 0; i < 2; i++)

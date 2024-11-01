@@ -35,6 +35,7 @@ class dWMShop_c : public dActor_c {
 			ACTIVATE_BUTTON = 2, // 3, 4, 5, 6, 7
 			DEACTIVATE_BUTTON = 8, // 9, 10, 11, 12, 13
 			COUNT_COIN = 14,
+			BUY_ITEM = 15, // 16, 17, 18, 19, 20
 		};
 
 		enum ItemTypes {
@@ -57,17 +58,21 @@ class dWMShop_c : public dActor_c {
 		static const ItemTypes Inventory[10][12];
 
 		nw4r::lyt::TextBox
-			*Title, *TitleShadow,
-			*CoinCount, *CoinCountShadow,
-			*BackText, *BuyText;
+			*T_title_00, *T_titleS_00,
+			*T_x_00, *T_coinTitle_00,
+			*T_coinUnspent_00, *T_coinUnspentS_00,
+			*T_back_00, *T_buy_00;
 
 		nw4r::lyt::Picture
-			*BtnLeft[6], *BtnMid[6], *BtnRight[6];
+			*P_btnSmBG_00, *P_btnSmBG_01,
+			*P_btnSmBG_02, *P_btnSmBG_03,
+			*P_btnLgBG_00, *P_btnLgBG_01;
 
 		nw4r::lyt::Pane
-			*Buttons[6], *Btn1Base, *Btn2Base;
-
-		dTexMapColouriser_c leftCol, midCol, rightCol;
+			*N_buttonSmall_00, *N_buttonSmall_01,
+			*N_buttonSmall_02, *N_buttonSmall_03,
+			*N_buttonLarge_00, *N_buttonLarge_01,
+			*N_btnLgSelCur_00, *N_btnLgSelCur_01;
 
 		class ShopModel_c {
 			public:

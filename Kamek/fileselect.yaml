@@ -1,5 +1,5 @@
 ---
-source_files: [../src/fileselect.S]
+source_files: [../src/fileSelect.S]
 hooks:
   - name: FSDisBrlan1 # inMulti
     type: add_func_pointer
@@ -81,25 +81,28 @@ hooks:
     src_addr_pal: 0x80943C5C
     target_func: 'FSDummyPane'
 
-
-  - name: FSCutOffSomeBmgs
-    type: patch
-    addr_pal: 0x80782F38
-    data: '38E00007'
-
-  - name: FSCutOffSomeTexts
+  - name: fileSelectBase_removeTextBox # T_back_00
     type: patch
     addr_pal: 0x80782F4C
     data: '38C00002'
 
-  - name: FSNoBackBmg
+  # Disables writing the BMG string to T_back_00
+  - name: fileSelectBase_removeBackBMG
     type: nop_insn
     area_pal: 0x80782F70
 
-  - name: FSNoWindows
+  # Disables writing the BMG strings to the multiplayer buttons
+  - name: fileSelectBase_removeMultiplayerBMGs
+    type: patch
+    addr_pal: 0x80782F38
+    data: '38E00007'
+
+  # Removes W_multiButton_00 and W_multiCoin_00
+  - name: fileSelectBase_removeWindows
     type: nop_insn
     area_pal: 0x80782F98
 
+  # Disables playing the show/hide Back button prompt
   - {name: FSShowOrHideNBackNop1, type: nop_insn, area_pal: 0x80783428}
   - {name: FSShowOrHideNBackNop2, type: nop_insn, area_pal: 0x80783440}
   - {name: FSShowOrHideNBackNop3, type: nop_insn, area_pal: 0x80783458}
@@ -115,40 +118,61 @@ hooks:
   - {name: FS3MoveLeftToUp, type: patch, addr_pal: 0x80784B08, data: '540007BD'}
   - {name: FS3MoveRightToDown, type: patch, addr_pal: 0x80784B40, data: '540007FF'}
 
-# needed because I replace A00_window with a couple of pointers LOL
+  # Needed because I replace A00_window with a couple of pointers LOL
   - {name: FSFixWindowName, type: add_func_pointer, src_addr_pal: 0x80943B54, target_func: 'A00_window'}
   - {name: FSShowRlan, type: add_func_pointer, src_addr_pal: 0x80943ACC, target_func: 'ShowEraseCopy'}
   - {name: FSHideRlan, type: add_func_pointer, src_addr_pal: 0x80943AD0, target_func: 'HideEraseCopy'}
   - {name: FSInitExtraRlans, type: patch, addr_pal: 0x80782EE4, data: '38A0001F'}
-#  - {name: FSFixPosFile, type: add_func_pointer, src_addr_pal: 0x80943C4C, target_func: 'N_posFile1_00'}
-#  - {name: FSCDHolderGrpA, type: add_func_pointer, src_addr_pal: 0x80943C08, target_func: 'CDHolderGroup'}
-#  - {name: FSCDHolderGrpB, type: add_func_pointer, src_addr_pal: 0x80943C0C, target_func: 'CDHolderGroup'}
-#  - {name: FSInitExtraGrps, type: patch, addr_pal: 0x80782EF8, data: '38C0002F'}
   - {name: FSCDHolderGrpA, type: add_func_pointer, src_addr_pal: 0x80943BFC, target_func: 'CDHolderGroup'}
   - {name: FSCDHolderGrpB, type: add_func_pointer, src_addr_pal: 0x80943C00, target_func: 'CDHolderGroup'}
   - {name: FSRlanIdx, type: patch, addr_pal: 0x8093422C, data: '0000001D0000001E'}
 
-# disable the multi out anims
-  - {name: FSDisMulti1, type: nop_insn, area_pal: 0x80784220}
-  - {name: FSDisMulti2, type: nop_insn, area_pal: 0x80784230}
 
+  # Resets ShowCopyDelete animation
   - {name: FSResetAnim, type: patch, addr_pal: 0x80783610, data: '3880002A'}
-#  - {name: FSShowCD, type: branch_insn, branch_type: b, src_addr_pal: 0x80783BFC, target_func: 'FSShowCD'}
-#  - {name: FSHideCD, type: branch_insn, branch_type: b, src_addr_pal: 0x80783F80, target_func: 'FSHideCD'}
-  - {name: FSShowCDa, type: branch_insn, branch_type: b, src_addr_pal: 0x80783810, target_func: 'FSShowCD_OpenWait'}
-#  - {name: FSHideCDa, type: branch_insn, branch_type: b, src_addr_pal: 0x80784304, target_func: 'FSHideCD_IWOSAEW'}
-# Show it on MultiButtnOnStageAnimeEndWait
+
+  # Plays ShowCopyDelete animation when the screen is loaded
+  - name: fileSelectBase_showCopyDelete
+    type: branch_insn
+    branch_type: b
+    src_addr_pal: 0x80783810
+    target_func: 'fsbShowCopyDelete_OpenWait'
+ 
+  # Show it on MultiButtnOnStageAnimeEndWait
   - {name: FSShowCDOverrideA, type: patch, addr_pal: 0x80783954, data: '3880002A'}
   - {name: FSShowCDOverrideB, type: patch, addr_pal: 0x807839AC, data: '3880002A'}
-# Hide it on MultiButtonExitAnimeEndWait
-  - {name: FSHideCD, type: branch_insn, branch_type: b, src_addr_pal: 0x80784200, target_func: 'FSHideCD'}
 
 
-  - {name: DFNiceTitle, type: branch_insn, branch_type: bl, src_addr_pal: 0x8077D044, target_func: 'DFNiceTitle'}
-  - {name: DFNiceWorldName, type: branch_insn, branch_type: bl, src_addr_pal: 0x8077DA10, target_func: 'DFNiceWorldName'}
+  - name: dateFile_insertFileNumber
+    type: branch_insn
+    branch_type: bl
+    src_addr_pal: 0x8077D044
+    target_func: 'dateFile_insertFileNumber'
 
-  - {name: DefaultSavefileInfo, type: branch_insn, branch_type: b, src_addr_pal: 0x800CE100, target_func: 'DefaultSavefileInfo'}
-  - {name: FixUpExistingSavefile, type: branch_insn, branch_type: b, src_addr_pal: 0x800CF900, target_func: 'FixUpExistingSavefile'}
-#  - {name: FSDebugStates, type: add_func_pointer, src_addr_pal: 0x80943E38, target_func: 'FSDebugStates'}
+
+  # Also goes to the function that writes savefile info
+  - name: dateFile_insertWorldName
+    type: branch_insn
+    branch_type: bl
+    src_addr_pal: 0x8077DA10
+    target_func: 'dateFile_insertWorldName'
+
+  # Hardcoded data used when creating a new file
+  - name: DefaultSavefileInfo
+    type: branch_insn
+    branch_type: b
+    src_addr_pal: 0x800CE100
+    target_func: 'DefaultSavefileInfo'
+  
+  - name: FixUpExistingSavefile
+    type: branch_insn
+    branch_type: b
+    src_addr_pal: 0x800CF900
+    target_func: 'FixUpExistingSavefile'
+
+#  - name: FSDebugStates
+#    type: add_func_pointer
+#    src_addr_pal: 0x80943E38
+#    target_func: 'FSDebugStates'
 
 

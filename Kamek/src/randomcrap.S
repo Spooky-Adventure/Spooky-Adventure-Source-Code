@@ -36,6 +36,15 @@ TryAndFixScoreGlitch:
 	addi r1, r1, 0x10
 	blr
 
+.global fixLightmapsForDolphin
+fixLightmapsForDolphin:
+	li r4, 5
+    stb r4, 0xc(r3)
+    li r4, 1
+    stb r4, 0xd(r3)
+    li r4, 0
+    blr
+
 .global ThwompNewAutoDestruction
 ThwompNewAutoDestruction:
 	lfs f1, 0xB0(r31)

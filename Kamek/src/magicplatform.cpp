@@ -17,7 +17,8 @@ class daEnMagicPlatform_c : public dEn_c {
 			ThinLineLeft = 4,
 			ThinLineTop = 5,
 			ThinLineBottom = 6,
-			NoneWithZ500 = 7
+			NoneWithZ500 = 7,
+			PipeTop = 8
 		};
 
 		// Settings

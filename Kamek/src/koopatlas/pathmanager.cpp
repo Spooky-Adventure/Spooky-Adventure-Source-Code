@@ -3,6 +3,7 @@
 #include "koopatlas/hud.h"
 #include "koopatlas/player.h"
 #include "koopatlas/map.h"
+#include "koopatlas/mapdata.h"
 #include <sfx.h>
 #include <stage.h>
 
@@ -195,9 +196,13 @@ void dWMPathManager_c::setup() {
 		}
 	}
 
-	for (int i = 0; i < pathLayer->nodeCount; i++)
-		if (pathLayer->nodes[i]->type == dKPNode_s::LEVEL)
+	
+	// Level models
+	for (int i = 0; i < pathLayer->nodeCount; i++) {
+		if (pathLayer->nodes[i]->type == dKPNode_s::LEVEL) {
 			pathLayer->nodes[i]->setupNodeExtra();
+		}
+	}
 
 	// did we just beat a level?
 	if (MaybeFinishingLevel[0] != 0xFF) {
@@ -997,7 +1002,7 @@ void dWMPathManager_c::execute() {
 			if (canUseExit(currentNode->exits[pressedDir])) {
 				startMovementTo(currentNode->exits[pressedDir]);
 			} else {
-				// TODO: maybe remove this? got to see how it looks
+				// Rotate player when changing directions
 				static u16 directions[] = {-0x4000,0x4000,-0x7FFF,0};
 				daWMPlayer_c::instance->setTargetRotY(directions[pressedDir]);
 			}
@@ -1343,8 +1348,8 @@ void dWMPathManager_c::moveThroughPath(int pressedDir) {
 
 		bool reallyStop = false;
 
-		if (to->type == dKPNode_s::LEVEL) {
-			// Always stop on levels
+		if (to->type == dKPNode_s::LEVEL || to->type == dKPNode_s::SIGN) {
+			// Always stop on levels and signs
 			reallyStop = true;
 		} else if (to->type == dKPNode_s::CHANGE || to->type == dKPNode_s::WORLD_CHANGE || to->type == dKPNode_s::PASS_THROUGH) {
 			// If there's only one exit here, then stop even though
@@ -1403,10 +1408,10 @@ void dWMPathManager_c::moveThroughPath(int pressedDir) {
 
 				if (wzHack) {
 					save->hudHintH = 2000;
-					dWMHud_c::instance->hideFooter();
+					dWMHud_c::instance->shouldShowCourseInfo(false);
 				} else {
 					if (visiblyChange && dWMHud_c::instance)
-						dWMHud_c::instance->showFooter();
+						dWMHud_c::instance->shouldShowCourseInfo(true);
 				}
 
 				dKPMusic::play(world->trackID);
@@ -1417,7 +1422,7 @@ void dWMPathManager_c::moveThroughPath(int pressedDir) {
 				dKPMusic::play(0);
 				save->newerWorldName[0] = 0;
 				if (dWMHud_c::instance)
-					dWMHud_c::instance->hideFooter();
+					dWMHud_c::instance->shouldShowCourseInfo(false);
 			} else {
 				OSReport("Not found!\n");
 			}
@@ -1519,20 +1524,42 @@ void dWMPathManager_c::activatePoint() {
 	if (levelStartWait >= 0)
 		return;
 
+	if (currentNode->type == dKPNode_s::SIGN) {
+		dWMSign_c::instance->show();
+		dWMHud_c::instance->hideAll();
+		dScKoopatlas_c::instance->state.setState(&dScKoopatlas_c::instance->StateID_SignWait);
+		return;
+	}
+	
 	if (currentNode->type == dKPNode_s::LEVEL) {
-		int w = currentNode->levelNumber[0] - 1;
-		int l = currentNode->levelNumber[1] - 1;
+		int world = currentNode->levelNumber[0] - 1;
+		int level = currentNode->levelNumber[1] - 1;
 
-		if (l == 98) {
-			dWMShop_c::instance->show(w);
+		// Shop
+		if (level == 98) {
+			dWMShop_c::instance->show(world);
 			dWMHud_c::instance->hideAll();
 			dScKoopatlas_c::instance->state.setState(&dScKoopatlas_c::instance->StateID_ShopWait);
 			return;
 		}
 
-		if ((l >= 29) && (l <= 36)) {
+		// Start Nodes
+		if ((level >= 89) && (level <= 92)) {
+			return;
+		}
+		
+		// Old Signs
+		/*if (level == 97) {
+			dWMSign_c::instance->show();
+			dWMHud_c::instance->hideAll();
+			dScKoopatlas_c::instance->state.setState(&dScKoopatlas_c::instance->StateID_SignWait);
+			return;
+		}*/
+
+		// Slots 30 through 36
+		if ((level >= 29) && (level <= 35)) {
 			SaveBlock *save = GetSaveFile()->GetBlock(-1);
-			u32 conds = save->GetLevelCondition(w, l);
+			u32 conds = save->GetLevelCondition(world, level);
 
 			SpammyReport("Toad House Flags: %x", conds);
 			if (conds & 0x30) { 
@@ -1553,7 +1580,7 @@ void dWMPathManager_c::activatePoint() {
 
 		isEnteringLevel = true;
 		levelStartWait = 40;
-		enteredLevel = dLevelInfo_c::s_info.searchBySlot(w, l);
+		enteredLevel = dLevelInfo_c::s_info.searchBySlot(world, level);
 
 		dKPMusic::stop();
 	}
@@ -1585,11 +1612,11 @@ void dWMPathManager_c::unlockAllPaths(char type) {
 		}
 	}
 
-	// Can't change node models - the price we pay for not using anims
-	// for (int i = 0; i < pathLayer->nodeCount; i++) {
-	// 	dKPNode_s *node = pathLayer->nodes[i];
-	// 	node->setupNodeExtra();
-	// }
+	// Change node models
+	for (int i = 0; i < pathLayer->nodeCount; i++) {
+		dKPNode_s *node = pathLayer->nodes[i];
+		node->setupNodeExtra();
+	}
 
 }
 

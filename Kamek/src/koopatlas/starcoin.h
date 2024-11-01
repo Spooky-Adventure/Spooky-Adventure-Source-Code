@@ -22,7 +22,13 @@ class dWMStarCoin_c : public dActor_c {
 		static dWMStarCoin_c *instance;
 
 		enum Animation {
-			SHOW_ALL = 0,
+			IN_WINDOW = 0,
+			OUT_WINDOW,
+			LOOP_CHECK,
+			SCREEN_BEFORE,
+			SCREEN_NEXT,
+			SECRET_SHOW,
+			SECRET_HIDE,
 			SHOW_SECTION,
 			HIDE_SECTION,
 			SHOW_LEFT_ARROW,
@@ -42,6 +48,7 @@ class dWMStarCoin_c : public dActor_c {
 		int currentSectionIndex;
 		int sectionIndices[MAX_SECTION_COUNT];
 		int availableSectionCount;
+		int direction;
 
 		bool isLeftArrowVisible, isRightArrowVisible;
 		bool willExit;
@@ -58,29 +65,29 @@ class dWMStarCoin_c : public dActor_c {
 		void setLeftArrowVisible(bool value);
 		void setRightArrowVisible(bool value);
 
-		void showSecretMessage(const wchar_t *title, const wchar_t **body, int lineCount, const wchar_t **body2 = 0, int lineCount2 = 0);
-
+		nw4r::lyt::Pane
+			*N_coinBarPos_0[10], *W_fileter_0[10];
+		
 		nw4r::lyt::Picture
-			*Shine[COLUMN_COUNT][SHINE_COUNT],
-			*CoinOutline[COLUMN_COUNT][ROW_COUNT][3],
-			*Coin[COLUMN_COUNT][ROW_COUNT][3],
-			*DPadLeft, *DPadRight;
+			*P_topFileter_0[10],
+			*P_coinFileter_1_0[10], *P_coinFileter_2_0[10], *P_coinFileter_3_0[10],
+			*P_coin_1_0[10], *P_coin_2_0[10], *P_coin_3_0[10];
 
 		nw4r::lyt::TextBox
-			*LevelName[COLUMN_COUNT][ROW_COUNT],
-			*LeftTitle, *RightTitle,
-			*TotalCoinCount, *UnspentCoinCount,
-			*EarnedCoinCount, *EarnedCoinMax,
-			*BtnBackText;
+			*T_titleCoin_00, *T_back_00,
+			*T_messageS_00, *T_message_00,
+			*T_world_00, *T_world_01,
+			*T_coinCurrent_00, *T_coinTotal_00,
+			*T_worldNum_0[10], *T_corseNum_0[10], *T_pictureFont_0[10];
+			
 
 		dStateWrapper_c<dWMStarCoin_c> state;
 
 		USING_STATES(dWMStarCoin_c);
 		DECLARE_STATE(Hidden);
 		DECLARE_STATE(ShowWait);
-		DECLARE_STATE(ShowSectionWait);
 		DECLARE_STATE(Wait);
-		DECLARE_STATE(HideSectionWait);
+		DECLARE_STATE(ChangeWait);
 		DECLARE_STATE(HideWait);
 };
 

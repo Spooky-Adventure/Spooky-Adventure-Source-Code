@@ -1,7 +1,7 @@
 # (c) Ninji 2010-2013
 # Original disassembly by RootCubed, TW and KR support from NewerSMBW v1.3.0
 # First Stage Loader by Asu-chan & CLF78
-# Slight text string modifications made by MandyIGuess for Spooky Adventure~
+# Slight modifications made by MandyIGuess for Spooky Adventure~
 
 .macro callSysFunction offset
     lwz r12, \offset(r31)
@@ -156,9 +156,9 @@ RegionDetected:
 
 
 memcpybuffer: .long 0, 0, 0
-FSLStart: .string "<< SPOOKY_LOADER \trelease build: Dec 19 2023 03:10 >>\n"
+FSLStart: .string "<< SPOOKY_LOADER \trelease build: Apr 05 2024 00:30 >>\n"
 FSLRegion: .string "-Found Region xx_x\n"
-FSLBCA: .string "-Removed BCA Check\n"
+FSLBCA: .string "-Removed Check\n"
 FSLFinish: .string "-Patched GameInitTable\n"
 .align 4
 
@@ -264,13 +264,10 @@ TWAddr:
     .long 0x80004070 # DoneWithFirstLoader
     .string "TW"
     .byte 0
-# TODO: CHANGE INSTANCES OF NEWERRES TO SPOOKYRES
-# NewerSystem: .string "/SpookyRes/Systemxx_x.bin"
-# NewerDlcode: .string "/SpookyRes/DLCodexx_x.bin"
-# NewerDlrel:  .string "/SpookyRes/DLRelocsxx_x.bin"
-NewerSystem: .string "/NewerRes/Systemxx_x.bin"
-NewerDlcode: .string "/NewerRes/DLCodexx_x.bin"
-NewerDlrel:  .string "/NewerRes/DLRelocsxx_x.bin"
+
+NewerSystem: .string "/SpookyRes/Systemxx_x.bin"
+NewerDlcode: .string "/SpookyRes/DLCodexx_x.bin"
+NewerDlrel:  .string "/SpookyRes/DLRelocsxx_x.bin"
     .align 4
 
 RegionAddr:
@@ -493,17 +490,13 @@ returnToGame:
     addi      r1, r1, 0x60
     blr
 
-InsertRegionIntoFileName: # Inserts the region and version into NewerRes/Systemxx_x.bin
-	# Commented stb's are for when everything gets changed to SpookyRes
+InsertRegionIntoFileName: # Inserts the region and version into SpookyRes/Systemxx_x.bin
     add       r3, r3, r4
     lbz       r5, 0x40(r31)
-    # stb       r5, 1(r3)
-	stb       r5, 0(r3)
+    stb       r5, 1(r3)
     lbz       r5, 0x41(r31)
-    # stb       r5, 2(r3)
-	stb       r5, 1(r3)
-    # stb       r6, 4(r3)
-	stb       r6, 3(r3)
+    stb       r5, 2(r3)
+    stb       r6, 4(r3)
     blr
 
 OSFatalData:

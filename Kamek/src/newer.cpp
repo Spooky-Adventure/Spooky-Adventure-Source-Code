@@ -4,48 +4,21 @@
 
 int lastLevelIDs[] = {
 	-1, /*no world*/
-	27, 27, 27, 27, 27, 27, 27, 25,
+	27,	// W1
+	27,
+	27,
+	27,
+	27,	// W5
+	27,
+	27,
+	25,
 	10,
-	24, 24, 21, 24, 3
+	24,	// W10 (A)
+	24,
+	21,
+	24,
+	3	// W14 (E)
 };
-
-
-/*
-extern "C" void FuckUpYoshi(void *_this) {
-	dEn_c *koopa = (dEn_c*)fBase_c::search(EN_NOKONOKO, 0);
-	static int thing = 0;
-	thing++;
-	nw4r::db::Exception_Printf_("Fruit eaten: %d\n", thing);
-	if (thing == 5) {
-		nw4r::db::Exception_Printf_("5th fruit eaten\n");
-		nw4r::db::Exception_Printf_("Let's try fucking up Yoshi!\n");
-		daPlBase_c *yoshi = (daPlBase_c*)fBase_c::search(YOSHI, 0);
-		nw4r::db::Exception_Printf_("Fruit: %p ; Koopa: %p ; Yoshi: %p\n", _this, koopa, yoshi);
-		koopa->_vf220(yoshi);
-		nw4r::db::Exception_Printf_("Yoshi fucked up. Yay.\n");
-		thing = 0;
-	}
-}
-
-extern "C" void FuckUpYoshi2() {
-	dEn_c *koopa = (dEn_c*)fBase_c::search(EN_NOKONOKO, 0);
-	nw4r::db::Exception_Printf_("Let's try fucking up Yoshi!\n");
-	daPlBase_c *yoshi = (daPlBase_c*)fBase_c::search(YOSHI, 0);
-	koopa->_vf220(yoshi);
-	nw4r::db::Exception_Printf_("Yoshi fucked up. Yay.\n");
-}
-
-extern "C" void StartAnimOrig(dPlayerModelBase_c *_this, int id, float updateRate, float unk, float frame);
-extern "C" void YoshiStartAnimWrapper(dPlayerModelBase_c *_this, int id, float updateRate, float unk, float frame) {
-	nw4r::db::Exception_Printf_("[%d] anim %d (%f, %f, %f)\n", GlobalTickCount, id, updateRate, unk, frame);
-	StartAnimOrig(_this, id, updateRate, unk, frame);
-}
-extern "C" void YoshiStateOrig(daPlBase_c *_this, dStateBase_c *state, void *param);
-extern "C" void YoshiStateWrapper(daPlBase_c *_this, dStateBase_c *state, void *param) {
-	nw4r::db::Exception_Printf_("[%d] %s,%p\n", GlobalTickCount, state->getName(), param);
-	YoshiStateOrig(_this, state, param);
-}
-*/
 
 
 void WriteAsciiToTextBox(nw4r::lyt::TextBox *tb, const char *source) {
@@ -62,47 +35,77 @@ void WriteAsciiToTextBox(nw4r::lyt::TextBox *tb, const char *source) {
 
 
 void getNewerLevelNumberString(int world, int level, wchar_t *dest) {
+	// Funnily enough, since this is empty, LYTs that use this just show "World   "
+}
+
+
+// These next two functions serve the purpose that getNewerLevelNumberString did, but since
+// retail layouts have the Level ID as separate panes, this allows us to apply separate data to each pane
+void getWorldNumber(int world, wchar_t *dest) {
+	dest[0] = (world >= 10) ? (world-10+'A') : (world+'0');
+	dest[1] = 0;
+}
+
+void getLevelNumber(int level, wchar_t *dest) {
 	static const wchar_t *numberKinds[] = {
 		// 0-19 are handled by code
-		// To insert a picturefont character:
-		// \x0B\x01YY\xZZZZ
-		// YY is the character code, ZZZZ is ignored
-		L"A", // 20, alternate
-		L"\x0B\x0148\xBEEF", // 21, tower
-		L"\x0B\x0148\xBEEF" L"2", // 22, tower 2
-		L"\x0B\x012E\xBEEF", // 23, castle
-		L"\x0B\x012F\xBEEF", // 24, fortress
-		L"\x0B\x013D\xBEEF", // 25, final castle
-		L"\x0B\x014D\xBEEF", // 26, train
-		L"\x0B\x0132\xBEEF", // 27, airship
-		L"Palace", // 28, switch palace
-		L"\x0B\x0147\xBEEF", // 29, yoshi's house
-		L"\x0B\x014E\xBEEF" L"1", // 30, key 1
-		L"\x0B\x014E\xBEEF" L"2", // 31, key 2
-		L"\x0B\x014E\xBEEF" L"3", // 32, key 3
-		L"\x0B\x014E\xBEEF" L"4", // 33, key 4
-		L"\x0B\x014E\xBEEF" L"5", // 34, key 5
-		L"\x0B\x014E\xBEEF" L"6", // 35, key 6
-		L"\x0B\x0138\xBEEF", // 36, music house
-		L"\x0B\x0133\xBEEF", // 37, shop
-		L"\x0B\x0139\xBEEF", // 38, challenge house
-		L"\x0B\x0151\xBEEF", // 39, red switch palace
-		L"\x0B\x0152\xBEEF", // 40, blue switch palace
-		L"\x0B\x0153\xBEEF", // 41, yellow switch palace
-		L"\x0B\x0154\xBEEF", // 42, green switch palace
+		// To insert a character: \x0B\x0WYY\xZZZZ
+		// W is the font ID, YY is the character code, ZZZZ is ignored
+		// Font IDs are as follows: 0 - MarioFont, 1 - PictureFont, 2 - MessageFont, 3 - NumberFont
+		L"A", 						// 20, Alternate
+		L"\x0B\x0148\xBEEF", 		// 21, Tower
+		L"\x0B\x0148\xBEEF" L"2", 	// 22, Tower 2
+		L"\x0B\x012E\xBEEF", 		// 23, Castle
+		L"\x0B\x012F\xBEEF", 		// 24, Fortress
+		L"\x0B\x013D\xBEEF", 		// 25, Final Castle
+		L"\x0B\x014D\xBEEF", 		// 26, Train
+		L"\x0B\x0132\xBEEF", 		// 27, Airship
+		L"Palace", 					// 28, Switch Palace
+		L"\x0B\x0147\xBEEF", 		// 29, Yoshi's House
+		L"\x0B\x014E\xBEEF" L"1", 	// 30, Key 1
+		L"\x0B\x014E\xBEEF" L"2", 	// 31, Key 2
+		L"\x0B\x014E\xBEEF" L"3", 	// 32, Key 3
+		L"\x0B\x014E\xBEEF" L"4", 	// 33, Key 4
+		L"\x0B\x014E\xBEEF" L"5", 	// 34, Key 5
+		L"\x0B\x014E\xBEEF" L"6", 	// 35, Key 6
+		L"\x0B\x0138\xBEEF", 		// 36, Music House
+		L"\x0B\x0133\xBEEF", 		// 37, Shop
+		L"\x0B\x0139\xBEEF", 		// 38, Challenge House
+		L"\x0B\x0151\xBEEF", 		// 39, Red Switch Palace
+		L"\x0B\x0152\xBEEF", 		// 40, Blue Switch Palace
+		L"\x0B\x0153\xBEEF", 		// 41, Yellow Switch Palace
+		L"\x0B\x0154\xBEEF", 		// 42, Green Switch Palace
+		L"\x0B\x0146\xBEEF", 		// 43, Message Box
+		L"\x0B\x0136\xBEEF",		// 44, Map Junction/Stopping Point
+		L"\x0B\x0134\xBEEF",		// 45, Start Node Pointing Right
+		L"\x0B\x0135\xBEEF",		// 46, Start Node Pointing Up
+		L"\x0B\x0155\xBEEF",		// 47, Start Node Pointing Left
+		L"\x0B\x0156\xBEEF",		// 48, Start Node Pointing Down
+		L"\x0B\x0157\xBEEF",		// 49, Signboard
 	};
+	
+	// This is for whether or not we'll use the pane specifically for icons
+	showCoursePic = false;
+	
+	// If you're wondering WHY there's a special pane just for icons, it's
+	// because the pane is at a smaller scale than the numbers, so
+	// it won't look as bad or too large compared to the rest of the level ID
+	
+	// For a reference of how bad it looks on the regular pane, just look at Newer's icons
 
-	dest[0] = (world >= 10) ? (world-10+'A') : (world+'0');
-	dest[1] = '-';
 	if (level >= 20) {
-		wcscpy(&dest[2], numberKinds[level-20]);
+		wcscpy(&dest[0], numberKinds[level-20]);
+		showCoursePic = true;
 	} else if (level >= 10) {
-		dest[2] = '1';
-		dest[3] = ('0' - 10) + level;
-		dest[4] = 0;
+		showCoursePic = false;
+		dest[0] = '1';
+		dest[1] = ('0' - 10) + level;
+		dest[2] = 0;
+		
 	} else {
-		dest[2] = '0' + level;
-		dest[3] = 0;
+		showCoursePic = false;
+		dest[0] = '0' + level;
+		dest[1] = 0;
 	}
 }
 
@@ -128,7 +131,6 @@ int getStarCoinCount() {
 
 	return coinsEarned;
 }
-
 
 struct GEIFS {
 	int starCoins, exits;
@@ -164,4 +166,32 @@ extern "C" GEIFS *GrabExitInfoForFileSelect(GEIFS *out, SaveBlock *save) {
 	return out;
 }
 
+// Replaces the ASM that wrote the Star Coin/Exit counters, and adds some new stuff
+extern "C" void WriteDateFileInfo(m2d::EmbedLayout_c *layout, int totalStarCoins, int totalExits) {
+	// Get panes
+	nw4r::lyt::TextBox *StarCoinCount, *ExitCount;
+	StarCoinCount = layout->findTextBoxByName("StarCoinCount");
+	ExitCount = layout->findTextBoxByName("ExitCount");
 
+	int stringLength = 3;
+
+	// Write collection values
+	WriteNumberToTextBox(&totalStarCoins, &stringLength, StarCoinCount, false);
+	WriteNumberToTextBox(&totalExits, &stringLength, ExitCount, false);
+
+
+	// TODO: Add 100% completion recolorings
+	if (totalStarCoins >= 7) {
+		StarCoinCount->colour1 = (GXColor){247,91,0,255};
+		StarCoinCount->colour2 = (GXColor){255,219,112,255};
+	} else {
+		StarCoinCount->colour1 = (GXColor){255,255,255,255};
+		StarCoinCount->colour2 = (GXColor){255,255,255,255};
+	}
+
+	if (totalExits >= 4) {
+
+	} else {
+
+	}
+}

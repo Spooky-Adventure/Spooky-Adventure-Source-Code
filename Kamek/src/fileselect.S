@@ -16,8 +16,8 @@ FSHideCD:
 	li r4, 0x2B
 	b enableNonLoopAnim__Q23m2d13EmbedLayout_cFib
 
-.global FSShowCD_OpenWait
-FSShowCD_OpenWait:
+.global fsbShowCopyDelete_OpenWait
+fsbShowCopyDelete_OpenWait:
 	addi r3, r31, 0x74
 	li r4, 0x2A
 	bl enableNonLoopAnim__Q23m2d13EmbedLayout_cFib
@@ -27,19 +27,8 @@ FSShowCD_OpenWait:
 	addi r1, r1, 0x10
 	blr
 
-#.global FSHideCD_IWOSAEW
-#FSHideCD_IWOSAEW:
-#	addi r3, r31, 0x74
-#	li r4, 0x2B
-#	bl enableNonLoopAnim__Q23m2d13EmbedLayout_cFib
-#	lwz r0, 0x14(r1)
-#	lwz r31, 0xC(r1)
-#	mtlr r0
-#	addi r1, r1, 0x10
-#	blr
-
-.global DFNiceTitle
-DFNiceTitle:
+.global dateFile_insertFileNumber
+dateFile_insertFileNumber:
 	mr r3, r4
 	lis r4, DFTitle@h
 	ori r4, r4, DFTitle@l
@@ -53,12 +42,9 @@ DFNiceTitle:
 	mtctr r12
 	bctr
 
-.extern findTextBoxByName__Q23m2d17EmbedLayoutBase_cCFPCc
 .extern findPictureByName__Q23m2d17EmbedLayoutBase_cCFPCc
-.extern InsertIntIntoTextBox1
-.extern GrabExitInfoForFileSelect
-.global DFNiceWorldName
-DFNiceWorldName:
+.global dateFile_insertWorldName
+dateFile_insertWorldName:
 	stwu r1, -0x30(r1)
 	mflr r0
 	stw r0, 0x34(r1)
@@ -74,8 +60,6 @@ DFNiceWorldName:
 	lhz r4, 0x734(r31)
 	cmpwi r4, 1000
 	blt useNormalWName
-	lis r4, WarpZoneName@h
-	ori r4, r4, WarpZoneName@l
 	b chosenWName
 
 useNormalWName:
@@ -92,6 +76,8 @@ convWNameLoop:
 	addi r5, r5, 1
 	bdnz convWNameLoop
 
+.extern GrabExitInfoForFileSelect
+.extern WriteDateFileInfo
 chosenWName:
 	mr r3, r20
 	li r5, 0
@@ -100,7 +86,7 @@ chosenWName:
 	mtctr r12
 	bctrl
 
-	# now set the colours
+	# Now set the colours
 	# Text colours: 0x71C, hint colours: 0x724
 	lwz r3, 0x71C(r31)
 	stw r3, 0xDC(r20)
@@ -108,8 +94,8 @@ chosenWName:
 	stw r3, 0xE0(r20)
 
 	addi r3, r30, 0x74
-	lis r4, Picture_00@h
-	ori r4, r4, Picture_00@l
+	lis r4, P_NumBase_01@h
+	ori r4, r4, P_NumBase_01@l
 	bl findPictureByName__Q23m2d17EmbedLayoutBase_cCFPCc
 	lwz r4, 0x724(r31)
 	stw r4, 0xD8(r3)
@@ -125,40 +111,15 @@ chosenWName:
 	lwz r21, 0(r3)
 	lwz r22, 4(r3)
 
-	# Now, subtract the paid star coins
-	# lhz r3, 0x66(r31)
-	# sub r21, r21, r3
-
 	# r21: Star Coin Count
 	# r22: Exit Count
 
-	# And write everything ...
+	# Now write everything
+	
 	addi r3, r30, 0x74
-	lis r4, ExitCount@h
-	ori r4, r4, ExitCount@l
-	bl findTextBoxByName__Q23m2d17EmbedLayoutBase_cCFPCc
-
-	stw r22, 0x20(r1)
-	mr r4, r3
-	addi r3, r1, 0x20
-	li r5, 1
-	bl InsertIntIntoTextBox1
-
-	addi r3, r30, 0x74
-	lis r4, StarCoinCount@h
-	ori r4, r4, StarCoinCount@l
-	bl findTextBoxByName__Q23m2d17EmbedLayoutBase_cCFPCc
-
-	lis r4, NewSCCWidth@h
-	ori r4, r4, NewSCCWidth@l
-	lfs f1, 0(r4)
-	stfs f1, 0x4C(r3)
-
-	stw r21, 0x20(r1)
-	mr r4, r3
-	addi r3, r1, 0x20
-	li r5, 0
-	bl InsertIntIntoTextBox1
+	mr r4, r21
+	mr r5, r22
+	bl WriteDateFileInfo
 
 .extern ResetAllCompletionCandidates__Fv
 .extern ClearOldPathAvailabilityData__Fv
@@ -302,29 +263,26 @@ N_posFile1_00: .string "N_posFile1_00"
 .global CDHolderGroup
 CDHolderGroup: .string "CDHolderGroup"
 
-NormalExitStr: .string "<Normal> %d-%d\n"
-SecretExitStr: .string "<Secret> %d-%d\n"
-StarCoinCount: .string "StarCoinCount"
-ExitCount: .string "ExitCount"
-Picture_00: .string "Picture_00"
+# Background
+P_NumBase_01: .string "P_NumBase_01"
 
 .align 4
-NewSCCWidth: .float 100.0
 
 .global Out_Stuff
-Out_Stuff:
-.long 0, 0
+Out_Stuff: .long 0, 0
 
 .align 4
 DFTitle:
-.short 'F','i','l','e',' ','X',0
+# These excess 0's are here because everything goes to shit when they're not there
+# and yes I did try to edit DFNiceTitle, it still caused issues
+.short 0,0,0,0,0,'X',0
 ConvertedWorldName:
 .short 0,0,0,0,0,0,0,0,0,0,0,0 # 12
 .short 0,0,0,0,0,0,0,0,0,0,0,0 # 12
 .short 0,0,0,0,0,0,0,0 # 8
 
-WarpZoneName:
-.short 'W','a','r','p',' ','Z','o','n','e',0
+# WarpZoneName:
+# .short 'W','a','r','p',' ','Z','o','n','e',0
 
 .align 4
 DefaultSavefileInfoData:

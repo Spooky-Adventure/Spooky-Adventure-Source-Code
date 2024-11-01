@@ -20,6 +20,8 @@ CREATE_STATE_E(dScKoopatlas_c, PlayerChangeWait);
 CREATE_STATE_E(dScKoopatlas_c, EasyPairingWait);
 CREATE_STATE_E(dScKoopatlas_c, PowerupsWait);
 CREATE_STATE_E(dScKoopatlas_c, ShopWait);
+CREATE_STATE_E(dScKoopatlas_c, SignWait);
+//CREATE_STATE_E(dScKoopatlas_c, WorldSelectWait);
 CREATE_STATE_E(dScKoopatlas_c, CoinsWait);
 CREATE_STATE_E(dScKoopatlas_c, SaveOpen);
 CREATE_STATE_E(dScKoopatlas_c, SaveSelect);
@@ -130,19 +132,25 @@ bool WMInit_LoadStaticFiles(void *ptr) {
 bool WMInit_LoadSIAnims(void *ptr) {
 	SpammyReport("WMInit_LoadSIAnims called\n");
 	
+	// StockItem Models
 	DVD_LoadFile(GetDVDClass(), "WorldMap", "SI_kinoko", 0);
 	DVD_LoadFile(GetDVDClass(), "WorldMap", "SI_fireflower", 0);
 	DVD_LoadFile(GetDVDClass(), "WorldMap", "SI_iceflower", 0);
 	DVD_LoadFile(GetDVDClass(), "WorldMap", "SI_penguin", 0);
 	DVD_LoadFile(GetDVDClass(), "WorldMap", "SI_propeller", 0);
 	DVD_LoadFile(GetDVDClass(), "WorldMap", "SI_star", 0);
-	DVD_LoadFile(GetDVDClass(), "Maps", "SI_hammer", 0);
+	DVD_LoadFile(GetDVDClass(), "World/Object", "SI_hammer", 0);
 
-	DVD_LoadFile(GetDVDClass(), "Object", "cobCourse", 0);
+	// Course Nodes
+	DVD_LoadFile(GetDVDClass(), "World/Object", "cobCourse", 0);
+	
+	// Shop Models
 	DVD_LoadFile(GetDVDClass(), "Object", "I_kinoko_bundle", 0);
-	DVD_LoadFile(GetDVDClass(), "Object", "lakitu", 0);
+	DVD_LoadFile(GetDVDClass(), "World/Object", "lakitu", 0);
 	DVD_LoadFile(GetDVDClass(), "Object", "star_coin", 0);
-	DVD_LoadFile(GetDVDClass(), "Object", "StarRing", 0);
+	
+	// Launch Star
+	DVD_LoadFile(GetDVDClass(), "World/Object", "StarRing", 0);
 	return true;
 }
 
@@ -164,7 +172,7 @@ bool WMInit_LoadResources1(void *ptr) {
 
 	dScKoopatlas_c *wm = (dScKoopatlas_c*)ptr;
 
-	return wm->mapListLoader.load("/Maps/List.txt");
+	return wm->mapListLoader.load("/World/MapList.txt");
 }
 
 bool WMInit_LoadResources2(void *ptr) {
@@ -262,10 +270,15 @@ bool WMInit_SetupExtra(void *ptr) {
 
 	SpammyReport("creating SHOP\n");
 	wm->shop = (dWMShop_c*)CreateParentedObject(WM_SHOP, wm, 0, 2);
+	
+	SpammyReport("creating Map Signs\n");
+	wm->sign = (dWMSign_c*)CreateParentedObject(WM_SIGN, wm, 0, 2);
+
+	//SpammyReport("Creating World Select menu!\n");
+	//wm->select = (dWMSelect_c*)CreateParentedObject(WM_SELECT, wm, 0, 2);
 
 	SpammyReport("creating Star Coin Menu\n");
 	wm->coins = (dWMStarCoin_c*)CreateParentedObject(WM_STARCOIN, wm, 0, 0);
-
 
 	SpammyReport("SetupExtra done\n");
 
@@ -533,37 +546,57 @@ void dScKoopatlas_c::endState_ContinueWait() {
 
 
 void dScKoopatlas_c::executeState_Normal() {
-	if (pathManager.completionMessagePending) {
-		OSReport("Going to set CompletionMsg\n");
-		state.setState(&StateID_CompletionMsg);
-		return;
+	dKPMusic::setVolume(1.0f); // Set volume back to 1.0 here instead of at the end of every state
+	if (!hud->layout.isAnyAnimOn()) {
+		if (pathManager.completionMessagePending) {
+			OSReport("Going to set CompletionMsg\n");
+			state.setState(&StateID_CompletionMsg);
+			return;
+		}
+
+		if (pathManager.doingThings())
+			return;		 
+		
+		int nowPressed = Remocon_GetPressed(GetActiveRemocon());
+
+		// Nothing related to the menu is going on
+		
+		// StockItem
+		if (nowPressed & WPAD_ONE) {
+			stockItem->show = true;
+			state.setState(&StateID_PowerupsWait);
+			MapSoundPlayer(SoundRelatedClass, SE_SYS_DECIDE, 1);
+			dKPMusic::setVolume(0.25f);
+			hud->hideAll();
+			
+		// Pause Menu
+		} else if (nowPressed & WPAD_PLUS) {
+			CSMENU_ACTIVE(this->csMenu) = true;
+			state.setState(&StateID_CSMenu);
+			MapSoundPlayer(SoundRelatedClass, SE_SYS_PAUSE, 1);
+			dKPMusic::setVolume(0.25f);
+			hud->hideAll();
+
+		// Get path node
+		} else if (nowPressed & WPAD_B) {
+			SaveBlock *save = GetSaveFile()->GetBlock(-1);
+			OSReport("Current Path Node ID is: %u\n", save->current_path_node);
+			MapSoundPlayer(SoundRelatedClass, SE_SYS_ROUTE_OK, 1);
+		}
+
+		// (removed) World Select
+		/*} else if (nowPressed & WPAD_MINUS) {
+			select->show();
+			state.setState(&StateID_WorldSelectWait);
+			dKPMusic::setVolume(0.25f);
+
+			SaveBlock *save = GetSaveFile()->GetBlock(-1);
+			save->current_path_node = 12;
+			//currentMapID = save->current_world;
+
+			hud->hideAll();
+		}*/
 	}
-
-	if (pathManager.doingThings())
-		return;
-
-	int nowPressed = Remocon_GetPressed(GetActiveRemocon());
-
-	// Nothing related to the menu is going on
-	if (nowPressed & WPAD_ONE) {
-		stockItem->show = true;
-		state.setState(&StateID_PowerupsWait);
-		hud->hideAll();
-	} else if (nowPressed & WPAD_PLUS) {
-		CSMENU_ACTIVE(this->csMenu) = true;
-		state.setState(&StateID_CSMenu);
-		hud->hideAll();
-#ifdef NEWER_DEBUG
-	 } else if (nowPressed & WPAD_MINUS) {
-	 	pathManager.unlockAllPaths(2);
-	 } else if (nowPressed & WPAD_A) {
-	 	pathManager.unlockAllPaths(0);
-	 	SaveBlock *save = GetSaveFile()->GetBlock(-1);
-	 	for (int w = 0; w < 6; w++)
-	 		for (int l = 0; l < 6; l++)
-	 			save->SetLevelCondition(w, l, COND_COIN_ALL);
-#endif
-	} 
 }
 
 void dScKoopatlas_c::executeState_CSMenu() {
@@ -623,7 +656,7 @@ void dScKoopatlas_c::executeState_CSMenu() {
 
 		} else {
 			// Ok, change back to STATE_Normal
-			hud->unhideAll();
+			hud->showAll();
 			state.setState(&StateID_Normal);
 		}
 	}
@@ -679,7 +712,7 @@ void dScKoopatlas_c::executeState_TitleConfirmHitWait() {
 	if (!yesNoWindow->animationActive) {
 		if (yesNoWindow->current == 1) {
 			state.setState(&StateID_Normal);
-			hud->unhideAll();
+			hud->showAll();
 		} else {
 			state.setState(&StateID_Limbo);
 			StartTitleScreenStage(false, 0);
@@ -723,7 +756,7 @@ void dScKoopatlas_c::executeState_PlayerChangeWait() {
 			}
 
 			state.setState(&StateID_Normal);
-			hud->unhideAll();
+			hud->showAll();
 		}
 	}
 
@@ -761,7 +794,7 @@ void dScKoopatlas_c::executeState_PowerupsWait() {
 		player->bindPats();
 
 		state.setState(&StateID_Normal);
-		hud->unhideAll();
+		hud->showAll();
 	}
 
 }
@@ -773,11 +806,32 @@ void dScKoopatlas_c::executeState_ShopWait() {
 
 	if (!shop->visible) {
 		state.setState(&StateID_Normal);
-		hud->unhideAll();
+		hud->showAll();
 	}
 
 }
 
+/**********************************************************************/
+// STATE_SignWait : Wait for the user to exit the Sign screen.
+void dScKoopatlas_c::executeState_SignWait() {
+
+	if (!sign->visible) {
+		state.setState(&StateID_Normal);
+		hud->showAll();
+	}
+
+}
+
+/**********************************************************************/
+// STATE_WorldSelectWait : Wait for the user to exit the World Select screen.
+/*void dScKoopatlas_c::executeState_WorldSelectWait() {
+
+	if (!select->visible) {
+		state.setState(&StateID_Normal);
+		hud->showAll();
+	}
+
+}*/
 
 /**********************************************************************/
 // STATE_StarCoin : Wait for the user to exit the Star Coin screen.
@@ -785,7 +839,7 @@ void dScKoopatlas_c::executeState_CoinsWait() {
 
 	if (!coins->visible) {
 		state.setState(&StateID_Normal);
-		hud->unhideAll();
+		hud->showAll();
 	}
 
 }
@@ -841,7 +895,7 @@ void dScKoopatlas_c::executeState_SaveWindowClose() {
 	if (!yesNoWindow->visible) {
 		if (yesNoWindow->current == 1) {
 			state.setState(&StateID_Normal);
-			hud->unhideAll();
+			hud->showAll();
 		} else {
 			state.setState(&StateID_SaveDo);
 			SaveGame(0, false);
@@ -885,7 +939,7 @@ void dScKoopatlas_c::executeState_SaveEndCloseWait() {
 
 	if (!yesNoWindow->animationActive) {
 		state.setState(&StateID_Normal);
-		hud->unhideAll();
+		hud->showAll();
 	}
 
 }
@@ -942,7 +996,7 @@ void dScKoopatlas_c::executeState_QuickSaveWindowClose() {
 	if (!yesNoWindow->visible) {
 		if (yesNoWindow->current == 1) {
 			state.setState(&StateID_Normal);
-			hud->unhideAll();
+			hud->showAll();
 		} else {
 			state.setState(&StateID_QuickSaveDo);
 			SaveGame(0, true);
@@ -986,7 +1040,7 @@ void dScKoopatlas_c::executeState_QuickSaveEndCloseWait() {
 	if (!yesNoWindow->animationActive) {
 		if (yesNoWindow->current == 1) {
 			state.setState(&StateID_Normal);
-			hud->unhideAll();
+			hud->showAll();
 		} else {
 			state.setState(&StateID_Limbo);
 			StartTitleScreenStage(false, 0);
@@ -1090,6 +1144,7 @@ int dScKoopatlas_c::getIndexForMapName(const char *name) {
 
 
 void dScKoopatlas_c::showSaveWindow() {
+	dKPMusic::setVolume(0.25f);
 	hud->hideAll();
 	state.setState(&StateID_SaveOpen);
 	yesNoWindow->type = 1;
@@ -1227,4 +1282,3 @@ void NewerMapDrawFunc() {
 	ClearLayoutDrawList();
 	SetCurrentCameraID(0);
 }
-

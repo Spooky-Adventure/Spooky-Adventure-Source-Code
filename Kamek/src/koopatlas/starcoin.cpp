@@ -1,3 +1,4 @@
+#include "koopatlas/core.h"
 #include "koopatlas/starcoin.h"
 #include <game.h>
 
@@ -19,21 +20,19 @@ dWMStarCoin_c::dWMStarCoin_c() : state(this) {
 
 CREATE_STATE(dWMStarCoin_c, Hidden);
 CREATE_STATE(dWMStarCoin_c, ShowWait);
-CREATE_STATE(dWMStarCoin_c, ShowSectionWait);
 CREATE_STATE(dWMStarCoin_c, Wait);
-CREATE_STATE(dWMStarCoin_c, HideSectionWait);
+CREATE_STATE(dWMStarCoin_c, ChangeWait);
 CREATE_STATE(dWMStarCoin_c, HideWait);
 
 int dWMStarCoin_c::onCreate() {
 
 	if (!layoutLoaded) {
-		bool gotFile = layout.loadArc("StarCoins.arc", false);
+		bool gotFile = layout.loadArc("worldCollection.arc", false);
 		if (!gotFile)
 			return false;
 
-		bool output = layout.build("StarCoins.brlyt");
+		bool output = layout.build("worldCollection.brlyt");
 
-		layout.layout.rootPane->trans.x = -112.0f;
 		if (IsWideScreen()) {
 			layout.layout.rootPane->scale.x = 0.735f;
 		} else {
@@ -47,58 +46,94 @@ int dWMStarCoin_c::onCreate() {
 		}
 
 		static const char *brlanNames[] = {
-			"StarCoins_Show.brlan",
-			"StarCoins_ShowSection.brlan",
-			"StarCoins_HideSection.brlan",
-			"StarCoins_ShowArrow.brlan",
-			"StarCoins_HideArrow.brlan",
+			"worldCollection_inWindow.brlan",
+			"worldCollection_outWindow.brlan",
+			"worldCollection_loopCheck.brlan",
+			"worldCollection_screenBefore.brlan",
+			"worldCollection_screenNext.brlan",
+			"worldCollection_secretShow.brlan",
+			"worldCollection_secretHide.brlan",
 		};
 		static const char *groupNames[] = {
-			"base", "section", "section", "leftArrow", "leftArrow", "rightArrow", "rightArrow"
+			"A00_Window", "A00_Window", "D00_Check", "B00_Screen", "B00_Screen", "C00_Secret", "C00_Secret",
 		};
 
-		layout.loadAnimations(brlanNames, 5);
-		layout.loadGroups(groupNames, (int[7]){0, 1, 2, 3, 4, 3, 4}, 7);
+		layout.loadAnimations(brlanNames, 7);
+		layout.loadGroups(groupNames, (int[7]){0, 1, 2, 3, 4, 5, 6}, 7);
 		layout.disableAllAnimations();
 
 		layout.drawOrder = 1;
 
-		for (int col = 0; col < COLUMN_COUNT; col++) {
-			for (int shine = 0; shine < SHINE_COUNT; shine++) {
-				char name[8];
-				sprintf(name, "Shine%d%d", col, shine);
-				Shine[col][shine] = layout.findPictureByName(name);
-			}
+		static const char *tbNames[] = {
+			"T_titleCoin_00", "T_back_00",
+			"T_messageS_00", "T_message_00",
+			"T_world_00", "T_world_01",
+			"T_coinCurrent_00", "T_coinTotal_00"
+		};
+		layout.getTextBoxes(tbNames, &T_titleCoin_00, 8);
 
-			for (int row = 0; row < ROW_COUNT; row++) {
-				char lname[12];
-				sprintf(lname, "LevelName%d%d", col, row);
-				LevelName[col][row] = layout.findTextBoxByName(lname);
+		// Get a bunch of different panes
+		for (int i = 0; i < 10; i++) {
+		// NULL PANES
+			char coinBarPosName[15];
+			sprintf(coinBarPosName, "N_coinBarPos_0%d", i);
+			N_coinBarPos_0[i] = layout.findPaneByName(coinBarPosName);
 
-				char coname[16], cname[8];
-				for (int i = 0; i < 3; i++) {
-					sprintf(coname, "CoinOutline%d%d%d", col, row, i);
-					CoinOutline[col][row][i] = layout.findPictureByName(coname);
+			char filterName[15];
+			sprintf(filterName, "W_fileter_0%d", i);
+			W_fileter_0[i] = layout.findPaneByName(filterName);
 
-					sprintf(cname, "Coin%d%d%d", col, row, i);
-					Coin[col][row][i] = layout.findPictureByName(cname);
-				}
-			}
+		// TEXTBOXES
+			char worldNumName[13];
+			sprintf(worldNumName, "T_worldNum_0%d", i);
+			T_worldNum_0[i] = layout.findTextBoxByName(worldNumName);
+
+			char courseNumName[13];
+			sprintf(courseNumName, "T_corseNum_0%d", i);
+			T_worldNum_0[i] = layout.findTextBoxByName(courseNumName);
+
+			char picFontName[16];
+			sprintf(picFontName, "T_pictureFont_0%d", i);
+			T_pictureFont_0[i] = layout.findTextBoxByName(picFontName);
+
+		// PICTURES
+			char topFilterName[15];
+			sprintf(topFilterName, "P_topFileter_0%d", i);
+			P_topFileter_0[i] = layout.findPictureByName(topFilterName);
+
+			// All these can be done efficiently by removing the "_0", but I'd rather keep it
+			char coinFilterName1[13];
+			sprintf(coinFilterName1, "P_coinFileter_1_0%d", i);
+			P_coinFileter_1_0[i] = layout.findPictureByName(coinFilterName1);
+
+			char coinFilterName2[13];
+			sprintf(coinFilterName2, "P_coinFileter_2_0%d", i);
+			P_coinFileter_2_0[i] = layout.findPictureByName(coinFilterName2);
+
+			char coinFilterName3[13];
+			sprintf(coinFilterName3, "P_coinFileter_3_0%d", i);
+			P_coinFileter_3_0[i] = layout.findPictureByName(coinFilterName3);
+
+			char coinName1[11];
+			sprintf(coinName1, "P_coin_1_0%d", i);
+			P_coin_1_0[i] = layout.findPictureByName(coinName1);
+
+			char coinName2[11];
+			sprintf(coinName2, "P_coin_2_0%d", i);
+			P_coin_2_0[i] = layout.findPictureByName(coinName2);
+
+			char coinName3[11];
+			sprintf(coinName3, "P_coin_3_0%d", i);
+			P_coin_3_0[i] = layout.findPictureByName(coinName3);
 		}
 
-		static const char *tbNames[] = {
-			"LeftTitle", "RightTitle", "TotalCoinCount", "UnspentCoinCount",
-			"EarnedCoinCount", "EarnedCoinMax", "BtnBackText",
-		};
-		layout.getTextBoxes(tbNames, &LeftTitle, 7);
-
-		static const char *picNames[] = {
+		/*static const char *picNames[] = {
 			"DPadLeft", "DPadRight",
 		};
 		layout.getPictures(picNames, &DPadLeft, 2);
 
 		DPadLeft->SetVisible(false);
-		DPadRight->SetVisible(false);
+		DPadRight->SetVisible(false);*/
 
 		layoutLoaded = true;
 	}
@@ -141,7 +176,7 @@ void dWMStarCoin_c::showLeftArrow() {
 	if (!isLeftArrowVisible) {
 		isLeftArrowVisible = true;
 		layout.enableNonLoopAnim(SHOW_LEFT_ARROW);
-		DPadLeft->SetVisible(true);
+		//DPadLeft->SetVisible(true);
 	}
 }
 
@@ -149,7 +184,7 @@ void dWMStarCoin_c::showRightArrow() {
 	if (!isRightArrowVisible) {
 		isRightArrowVisible = true;
 		layout.enableNonLoopAnim(SHOW_RIGHT_ARROW);
-		DPadRight->SetVisible(true);
+		//DPadRight->SetVisible(true);
 	}
 }
 
@@ -157,7 +192,7 @@ void dWMStarCoin_c::hideLeftArrow() {
 	if (isLeftArrowVisible) {
 		isLeftArrowVisible = false;
 		layout.enableNonLoopAnim(HIDE_LEFT_ARROW);
-		DPadLeft->SetVisible(false);
+		//DPadLeft->SetVisible(false);
 	}
 }
 
@@ -165,7 +200,7 @@ void dWMStarCoin_c::hideRightArrow() {
 	if (isRightArrowVisible) {
 		isRightArrowVisible = false;
 		layout.enableNonLoopAnim(HIDE_RIGHT_ARROW);
-		DPadRight->SetVisible(false);
+		//DPadRight->SetVisible(false);
 	}
 }
 
@@ -192,13 +227,8 @@ bool dWMStarCoin_c::canScrollRight() const {
 }
 
 void dWMStarCoin_c::loadInfo() {
-	WriteBMGToTextBox(BtnBackText, GetBMG(), 3, 1, 0);
-
-	int unspentCoins = getUnspentStarCoinCount();
-	int coins = getStarCoinCount();
-
-	WriteNumberToTextBox(&unspentCoins, UnspentCoinCount, false);
-	WriteNumberToTextBox(&coins, TotalCoinCount, false);
+	WriteBMGToTextBox(T_back_00, GetBMG(), 2, 58, 0);
+	WriteBMGToTextBox(T_titleCoin_00, GetBMG(), 2, 61, 0);
 
 	currentSection = -1;
 	currentSectionIndex = -1;
@@ -207,7 +237,7 @@ void dWMStarCoin_c::loadInfo() {
 	SaveBlock *save = GetSaveFile()->GetBlock(-1);
 	int wantedSection = save->newerWorldID;
 
-	// figure out which sections should be available
+	// Figure out which sections should be available
 	for (int i = 0; i < dLevelInfo_c::s_info.sectionCount(); i++) {
 		dLevelInfo_c::section_s *section = dLevelInfo_c::s_info.getSectionByIndex(i);
 
@@ -231,7 +261,7 @@ void dWMStarCoin_c::loadInfo() {
 		}
 	}
 
-	// if we didn't find the wanted one, use the first one available
+	// If we didn't find the wanted one, use the first one available
 	if (currentSectionIndex == -1) {
 		currentSectionIndex = 0;
 		currentSection = sectionIndices[0];
@@ -239,95 +269,78 @@ void dWMStarCoin_c::loadInfo() {
 }
 
 void dWMStarCoin_c::loadSectionInfo() {
-	dLevelInfo_c::entry_s *visibleLevels[COLUMN_COUNT][ROW_COUNT];
+	dLevelInfo_c::entry_s *visibleLevels[10];
 
-	// reset everything... everything
-	for (int i = 0; i < COLUMN_COUNT; i++) {
-		for (int j = 0; j < SHINE_COUNT; j++)
-			Shine[i][j]->SetVisible(false);
-
-		for (int j = 0; j < ROW_COUNT; j++) {
-			visibleLevels[i][j] = 0;
-
-			LevelName[i][j]->SetVisible(false);
-
-			for (int k = 0; k < 3; k++) {
-				CoinOutline[i][j][k]->SetVisible(false);
-				Coin[i][j][k]->SetVisible(false);
-			}
-		}
+	// Hide entries
+	for (int i = 0; i < 10; i++) {
+		N_coinBarPos_0[i]->SetVisible(false);
 	}
 
-	// get everything we'll need
+	// Get everything we'll need
 	SaveBlock *save = GetSaveFile()->GetBlock(-1);
-	dLevelInfo_c *linfo = &dLevelInfo_c::s_info;
+	dLevelInfo_c *levelInfo = &dLevelInfo_c::s_info;
 
-	dLevelInfo_c::entry_s *names[COLUMN_COUNT];
-	for (int i = 0; i < COLUMN_COUNT; i++)
-		names[i] = linfo->searchByDisplayNum(currentSection, 100+i);
+	// Get the world name
+	dLevelInfo_c::entry_s *names;
+	WriteAsciiToTextBox(T_world_00, levelInfo->getNameForLevel(names));
 
-	bool useSubworlds = (COLUMN_COUNT > 1) && names[1];
+	//dLevelInfo_c::entry_s *names[COLUMN_COUNT];
+	//for (int i = 0; i < COLUMN_COUNT; i++)
+	//	names[i] = levelInfo->searchByDisplayNum(currentSection, 100+i);
 
-	int currentPosition[COLUMN_COUNT];
-	int currentColumn = 0; // only incremented in single-subworld mode
+	//bool useSubworlds = (COLUMN_COUNT > 1) && names[1];
 
-	for (int i = 0; i < COLUMN_COUNT; i++)
-		currentPosition[i] = 0;
+	//int currentPosition[COLUMN_COUNT];
+	//int currentColumn = 0; // Only incremented in single-subworld mode
 
-	dLevelInfo_c::section_s *section = linfo->getSectionByIndex(currentSection);
+	//for (int i = 0; i < COLUMN_COUNT; i++)
+	//	currentPosition[i] = 0;
 
-	int earnedCoins = 0, earnableCoins = 0;
-	// earnedCoins is calculated later
+	
+	dLevelInfo_c::section_s *section = levelInfo->getSectionByIndex(currentSection);
+
+	int collectedCoins = 0, totalCoins = 0;
+	// collectedCoins is calculated later
+
+	int totalLevels = 0;
 
 	for (int i = 0; i < section->levelCount; i++) {
 		dLevelInfo_c::entry_s *level = &section->levels[i];
 
-		// only pay attention to real levels
+		// Only pay attention to levels with Star Coins
 		if (!(level->flags & 2))
 			continue;
 
-		earnableCoins += 3;
+		totalCoins += 3;
 
-		// is this level unlocked?
-		u32 conds = save->GetLevelCondition(level->worldSlot, level->levelSlot);
+		// Is this level unlocked?
+		/*u32 conds = save->GetLevelCondition(level->worldSlot, level->levelSlot);
 
 		if (!(conds & COND_UNLOCKED))
 			continue;
+		*/
 
-		// well, let's give it a slot
-		if (useSubworlds) {
-			currentColumn = (level->flags & 0x400) ? 1 : 0;
-		} else {
-			if (currentPosition[currentColumn] >= ROW_COUNT)
-				currentColumn++;
-		}
-
-		visibleLevels[currentColumn][currentPosition[currentColumn]++] = level;
+		totalLevels++;
 	}
 
-	// if the first column is empty, then move the second one over
-	if (currentPosition[0] == 0 && useSubworlds) {
-		for (int i = 0; i < currentPosition[1]; i++) {
-			visibleLevels[0][i] = visibleLevels[1][i];
-			visibleLevels[1][i] = 0;
+	
+
+	for (int i = 0; i < 10; i++) {
+		dLevelInfo_c::entry_s *level = visibleLevels[totalLevels];
+
+		if (!level)
+			continue;
+
+		u32 conds = save->GetLevelCondition(level->worldSlot, level->levelSlot);
+
+		for (int j = 0; j < totalLevels; j++) {
+			if (j < 10) return;
+			N_coinBarPos_0[j]->SetVisible(true);
 		}
-
-		names[0] = names[1];
-		names[1] = 0;
 	}
-
-	// if the second column is empty, remove its name
-	if (currentPosition[1] == 0 && useSubworlds)
-		names[1] = 0;
-
-	// work out the names
-	WriteAsciiToTextBox(LeftTitle, linfo->getNameForLevel(names[0]));
-	if (names[1])
-		WriteAsciiToTextBox(RightTitle, linfo->getNameForLevel(names[1]));
-	RightTitle->SetVisible(names[1] != 0);
-
+	
 	// load all level info
-	for (int col = 0; col < COLUMN_COUNT; col++) {
+	/*for (int col = 0; col < COLUMN_COUNT; col++) {
 		for (int row = 0; row < ROW_COUNT; row++) {
 			dLevelInfo_c::entry_s *level = visibleLevels[col][row];
 			if (!level)
@@ -353,11 +366,12 @@ void dWMStarCoin_c::loadSectionInfo() {
 			LevelName[col][row]->SetVisible(true);
 			WriteAsciiToTextBox(LevelName[col][row], linfo->getNameForLevel(level));
 		}
-	}
+	}*/
 
-	// set up coin things
-	WriteNumberToTextBox(&earnedCoins, EarnedCoinCount, false);
-	WriteNumberToTextBox(&earnableCoins, EarnedCoinMax, false);
+	// Write Star Coin amounts
+	int length = 2;
+	WriteNumberToTextBox(&collectedCoins, &length, T_coinCurrent_00, false);
+	WriteNumberToTextBox(&totalCoins, &length, T_coinTotal_00, false);
 }
 
 
@@ -377,105 +391,62 @@ extern bool enableHardMode;
 extern bool enableDebugMode;
 extern u8 isReplayEnabled;
 
+// Secret Message strings, the ID is used to load a specific message from here
+static const wchar_t *secretMessages[] = {
+	/*0*/ L"Hard Mode has been enabled!\nIn Hard Mode, Mario will die any\n time hetakes damage, and the\ntimer will be more strict.",
+	/*1*/ L"Hard Mode disabled.\nLevels will now function normally.",
+	/*2*/ L"The Replay Recorder is active!\nYou'll need to be on a real\nWii console to record them.\nBe sure to save before a level,\njust in case it doesn't work.",
+	/*3*/ L"Replay Recorder disabled.",
+	/*4*/ L"You've enabled the secret\nCollision Debug Mode!\nModels will now draw lines to\nshow their hitboxes. It doesn't\nwork 100% perfectly, so some\nhitboxes might not show up.",
+	/*5*/ L"The Collision Debug Mode\nhas been disabled.",
+	/*6*/ L"This is a secret message, so\nyou won't see this in-game. If\nyou do, report it as a bug."
+};
+
+
+// Menu is first opened
 void dWMStarCoin_c::beginState_ShowWait() {
 	visible = true;
 	loadInfo();
-	layout.enableNonLoopAnim(SHOW_ALL);
-	layout.resetAnim(SHOW_SECTION);
-	layout.resetAnim(SHOW_LEFT_ARROW);
-	layout.resetAnim(SHOW_RIGHT_ARROW);
+	loadSectionInfo();
+	MapSoundPlayer(SoundRelatedClass, SE_SYS_DIALOGUE_IN, 1);
+	layout.enableLoopAnim(LOOP_CHECK);
+	layout.enableNonLoopAnim(IN_WINDOW);
 
+	// Reset our secret code stuff
 	secretCodeIndex = 0;
 	minusCount = 0;
 }
 void dWMStarCoin_c::executeState_ShowWait() {
-	if (!layout.isAnimOn(SHOW_ALL))
-		state.setState(&StateID_ShowSectionWait);
+	if (!layout.isAnimOn(IN_WINDOW))
+		state.setState(&StateID_Wait);
 }
 void dWMStarCoin_c::endState_ShowWait() { }
 
-void dWMStarCoin_c::beginState_ShowSectionWait() {
-	loadSectionInfo();
-	layout.enableNonLoopAnim(SHOW_SECTION);
 
-	if (canScrollLeft())
-		showLeftArrow();
-	if (canScrollRight())
-		showRightArrow();
-}
-void dWMStarCoin_c::executeState_ShowSectionWait() {
-	if (!layout.isAnimOn(SHOW_SECTION))
-		state.setState(&StateID_Wait);
-}
-void dWMStarCoin_c::endState_ShowSectionWait() { }
-
-void dWMStarCoin_c::showSecretMessage(const wchar_t *title, const wchar_t **body, int lineCount, const wchar_t **body2, int lineCount2) {
-	LeftTitle->SetVisible(true);
-	LeftTitle->SetString(title);
-	RightTitle->SetVisible(false);
-
-	for (int c = 0; c < COLUMN_COUNT; c++) {
-		for (int i = 0; i < SHINE_COUNT; i++)
-			Shine[c][i]->SetVisible(false);
-		for (int r = 0; r < ROW_COUNT; r++) {
-			LevelName[c][r]->SetVisible(false);
-			for (int i = 0; i < 3; i++) {
-				CoinOutline[c][r][i]->SetVisible(false);
-				Coin[c][r][i]->SetVisible(false);
-			}
-		}
-	}
-
-	for (int i = 0; i < lineCount; i++) {
-		LevelName[0][i]->SetVisible(true);
-		LevelName[0][i]->SetString(body[i]);
-	}
-
-	if (body2) {
-		for (int i = 0; i < lineCount2; i++) {
-			LevelName[1][i]->SetVisible(true);
-			LevelName[1][i]->SetString(body2[i]);
-		}
-	}
-}
 
 void dWMStarCoin_c::beginState_Wait() { }
 void dWMStarCoin_c::executeState_Wait() {
 	int nowPressed = Remocon_GetPressed(GetActiveRemocon());
 
-	// A and Plus (formerly B as well, prior to 1.30, but nunchuk scheme binds B to cancel)
+	// Hard Mode (A and Plus)
 	if ((GetActiveRemocon()->heldButtons == 0x810) && (nowPressed & 0x810)) {
-
-		const int lineCountOn = 9, lineCountOff = 2;
-		static const wchar_t *linesOn[lineCountOn] = {
-			L"You've activated Hard Mode!",
-			L" ",
-			L"In Hard Mode, Mario will die",
-			L"any time he takes damage, and",
-			L"the timer will be more strict.",
-			L" ",
-			L"So treasure your Yoshi and",
-			L"hold on to your hat, 'cause",
-			L"you're in for a wild ride!",
-		};
-		static const wchar_t *linesOff[lineCountOff] = {
-			L"Hard Mode has been",
-			L"turned off.",
-		};
 
 		if (!enableHardMode) {
 			enableHardMode = true;
+			T_messageS_00->SetString(secretMessages[0]);
+			T_message_00->SetString(secretMessages[0]);
 			OSReport("Hard Mode enabled!\n");
 			MapSoundPlayer(SoundRelatedClass, SE_VOC_MA_CS_COURSE_IN_HARD, 1);
-			showSecretMessage(L"Hard Mode", linesOn, lineCountOn);
 		} else {
 			enableHardMode = false;
+			T_messageS_00->SetString(secretMessages[1]);
+			T_message_00->SetString(secretMessages[1]);
 			OSReport("Hard Mode disabled!\n");
-			showSecretMessage(L"Classic Mario", linesOff, lineCountOff);
 		}
 		return;
 	}
 
+	// Replay Recorder
 	if (nowPressed & secretCodeButtons) {
 		int nextKey = secretCode[secretCodeIndex];
 		if (nowPressed & nextKey) {
@@ -483,33 +454,18 @@ void dWMStarCoin_c::executeState_Wait() {
 			if (secretCode[secretCodeIndex] == 0) {
 				secretCodeIndex = 0;
 				MapSoundPlayer(SoundRelatedClass, SE_VOC_MA_THANK_YOU, 1);
-				//enableDebugMode = !enableDebugMode;
-				//OSReport("Debug mode toggled!\n");
-				const int lineCountOn = 9, lineCountOff = 2;
-				static const wchar_t *linesOn[lineCountOn] = {
-					L"The experimental Replay",
-					L"Recording feature has",
-					L"been enabled. Enjoy!",
-					L"You'll find your Replays",
-					L"on your SD or USB, depending",
-					L"on where Newer's files are.",
-					L"It might not work, so",
-					L"save your game before you",
-					L"play a level!",
-				};
-				static const wchar_t *linesOff[lineCountOff] = {
-					L"Replay Recording",
-					L"turned off.",
-				};
-
+				
 				if (isReplayEnabled != 100) {
 					isReplayEnabled = 100;
+					T_messageS_00->SetString(secretMessages[2]);
+					T_message_00->SetString(secretMessages[2]);
 					OSReport("Replay Recording enabled!\n");
-					showSecretMessage(L"Nice!", linesOn, lineCountOn);
 				} else {
 					isReplayEnabled = 0;
+					T_messageS_00->SetString(secretMessages[3]);
+					T_message_00->SetString(secretMessages[3]);
 					OSReport("Replay Recording disabled!\n");
-					showSecretMessage(L"Nice!", linesOff, lineCountOff);
+					
 				}
 			}
 			return;
@@ -518,6 +474,7 @@ void dWMStarCoin_c::executeState_Wait() {
 		}
 	}
 
+	// Collision Debugger
 	if (nowPressed & WPAD_MINUS) {
 		minusCount++;
 		if (minusCount >= 16) {
@@ -526,98 +483,62 @@ void dWMStarCoin_c::executeState_Wait() {
 			enableDebugMode = !enableDebugMode;
 
 			if (enableDebugMode) {
+				T_message_00->SetString(secretMessages[4]);
+				T_messageS_00->SetString(secretMessages[4]);
 				MapSoundPlayer(SoundRelatedClass, SE_VOC_MA_GET_PRIZE, 1);
-
-				const int msgCount = 9;
-				static const wchar_t *msg[msgCount] = {
-					L"You've found the Totally",
-					L"Secret Collision Debug Mode.",
-					L"We used this to make the",
-					L"hitboxes on our custom sprites",
-					L"and bosses suck less. Awesome,",
-					L"right?!",
-					L"Actually, I did it just to waste",
-					L"some time, but it ended up",
-					L"being pretty useful!",
-				};
-				const int msgCount2 = 9;
-				static const wchar_t *msg2[msgCount2] = {
-					L"And yes, I know it doesn't show",
-					L"a couple of things properly",
-					L"like round objects and rolling",
-					L"hills and so on.",
-					L"Can't have it all, can you?",
-					L"Wonder if Nintendo had",
-					L"something like this...",
-					L"",
-					L"    Treeki, 9th February 2013",
-				};
-				showSecretMessage(L"Groovy!", msg, msgCount, msg2, msgCount2);
 			} else {
-				const int msgCount = 6;
-				static const wchar_t *msg[msgCount] = {
-					L"You've turned off the Totally",
-					L"Secret Collision Debug Mode.",
-					L"",
-					L"... and no, I'm not going to write",
-					L"another ridiculously long",
-					L"message to go here. Sorry!",
-				};
-				static const wchar_t *hiddenMsg[] = {
-					L"If you found these messages by",
-					L"looking through strings in the DLCode",
-					L"file, then... that's kind of cheating.",
-					L"Though I can't say I wouldn't do the",
-					L"same!",
-					L"You won't actually see this in game",
-					L"btw :p So why am I bothering with linebreaks anyway? I dunno. Oh well.",
-					L"Also, don't put this message on TCRF. Or do! Whatever. :(",
-				};
-				showSecretMessage(L"Groovy!", msg, msgCount, hiddenMsg, 0);
+				T_message_00->SetString(secretMessages[5]);
+				T_messageS_00->SetString(secretMessages[5]);
 			}
 		}
-	} else if (nowPressed & WPAD_ONE) {
+	}
+	
+	// Close menu
+	else if (nowPressed & WPAD_ONE) {
 		MapSoundPlayer(SoundRelatedClass, SE_SYS_DIALOGUE_OUT_AUTO, 1);
-		willExit = true;
-		state.setState(&StateID_HideSectionWait);
-	} else if ((nowPressed & WPAD_LEFT) && canScrollLeft()) {
+		state.setState(&StateID_HideWait);
+	}
+	
+	// Change to previous page
+	else if ((nowPressed & WPAD_LEFT) && canScrollLeft()) {
 		currentSection = sectionIndices[--currentSectionIndex];
-		willExit = false;
-		state.setState(&StateID_HideSectionWait);
-	} else if ((nowPressed & WPAD_RIGHT) && canScrollRight()) {
+		layout.enableNonLoopAnim(SCREEN_BEFORE);
+		state.setState(&StateID_ChangeWait);
+		direction = 0;
+	}
+	
+	// Change to next page
+	else if ((nowPressed & WPAD_RIGHT) && canScrollRight()) {
 		currentSection = sectionIndices[++currentSectionIndex];
-		willExit = false;
-		state.setState(&StateID_HideSectionWait);
+		layout.enableNonLoopAnim(SCREEN_NEXT);
+		state.setState(&StateID_ChangeWait);
 	}
 }
 void dWMStarCoin_c::endState_Wait() { }
 
-void dWMStarCoin_c::beginState_HideSectionWait() {
-	layout.enableNonLoopAnim(HIDE_SECTION);
-	if (willExit) {
-		hideLeftArrow();
-		hideRightArrow();
-	} else {
-		setLeftArrowVisible(canScrollLeft());
-		setRightArrowVisible(canScrollRight());
-	}
-}
-void dWMStarCoin_c::executeState_HideSectionWait() {
-	if (!layout.isAnimOn(HIDE_SECTION)) {
-		if (willExit)
-			state.setState(&StateID_HideWait);
-		else
-			state.setState(&StateID_ShowSectionWait);
-	}
-}
-void dWMStarCoin_c::endState_HideSectionWait() { }
 
+
+// Change pages
+void dWMStarCoin_c::beginState_ChangeWait() {
+	//setLeftArrowVisible(canScrollLeft());
+	//setRightArrowVisible(canScrollRight());
+}
+void dWMStarCoin_c::executeState_ChangeWait() {
+	if ((!layout.isAnimOn(SCREEN_BEFORE)) || (!layout.isAnimOn(SCREEN_NEXT))) {
+		state.setState(&StateID_Wait);
+	}
+}
+void dWMStarCoin_c::endState_ChangeWait() { }
+
+
+
+// Close the menu
 void dWMStarCoin_c::beginState_HideWait() {
-	layout.enableNonLoopAnim(SHOW_ALL, true);
-	layout.grpHandlers[SHOW_ALL].frameCtrl.flags = 3; // NO_LOOP | REVERSE
+	MapSoundPlayer(SoundRelatedClass, SE_SYS_BACK, 1);
+	layout.enableNonLoopAnim(OUT_WINDOW);
 }
 void dWMStarCoin_c::executeState_HideWait() {
-	if (!layout.isAnimOn(SHOW_ALL))
+	if (!layout.isAnimOn(OUT_WINDOW))
 		state.setState(&StateID_Hidden);
 }
 void dWMStarCoin_c::endState_HideWait() {

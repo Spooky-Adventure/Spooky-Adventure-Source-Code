@@ -49,6 +49,9 @@ class daWMPlayer_c : public dActor_c {
 		void bindPats();
 
 		void startAnimation(int id, float frame, float unk, float updateRate);
+		
+		void resizePlayer(float x, float y, float z);
+		float scaleFactor, scaleEase;
 
 		static daWMPlayer_c *build();
 		static daWMPlayer_c *instance;

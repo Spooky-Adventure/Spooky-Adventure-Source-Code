@@ -11,6 +11,11 @@ SECTIONS {
 	YoshiStateOrig = 2148843056;
 	Exception_Printf___Q24nw4r2dbFPCce = 2149797824;
 
+	/* dGameDisplay_c */
+	instance__14dGameDisplay_c = 2151903176;
+	onCreate_orig__14dGameDisplay_cFv = 2148892496;
+	onExecute_orig__14dGameDisplay_cFv = 2148893872;
+
 	ContinueFromFuckLineLiftActivation = 2156125508;
 
 	GabonRock_DropOutState = 2157568496;
@@ -175,8 +180,8 @@ SECTIONS {
 	RealWm2dPlayerDtor = 2156697472;
 
 	InsertIntIntoTextBox1 = 2148220256;
-	WriteNumberToTextBox__FPiPCiPQ34nw4r3lyt7TextBoxb = 2148220128;
-	WriteNumberToTextBox__FPiPQ34nw4r3lyt7TextBoxb = 2148220256;
+	WriteNumberToTextBox__FPiPCiPQ34nw4r3lyt7TextBoxb = 2148220128; /* Takes text length */
+	WriteNumberToTextBox__FPiPQ34nw4r3lyt7TextBoxb = 2148220256; /* Text length is whatever the fuck value it's printing */
 
 	__ct__20daJrClownForPlayer_cFv = 2155955536;
 	__dt__20daJrClownForPlayer_cFv = 2155955728; /* Beans indeed. */

@@ -69,7 +69,7 @@ extern "C" void AxVoice_SetADPCM(void *axVoice, void *adpcm);
 extern "C" void Voice_SetADPCMLoop(void *voice, int channel, void *adpcmLoop);
 
 bool dKPMusic::loadInfo() {
-	return s_adpcmInfoLoader.load("/NewerRes/MapADPCMInfo.bin");
+	return s_adpcmInfoLoader.load("/SpookyRes/MapADPCMInfo.bin");
 }
 
 void dKPMusic::execute() {
@@ -87,7 +87,7 @@ void dKPMusic::execute() {
 			nw4r::db::Exception_Printf_("Switching brstm files to song %d.\n", s_nextSong);
 
 			char brstmPath[48];
-			sprintf(brstmPath, "/Sound/new/map%d.er", s_nextSong);
+			sprintf(brstmPath, "/Sound/map%d.brstm", s_nextSong);
 
 			u8 *sound = (u8*)(s_handle.GetSound());
 			u8 *player = sound+0x110;
@@ -181,5 +181,10 @@ void dKPMusic::playStarMusic() {
 
 	PlaySoundWithFunctionB4(SoundRelatedClass, &s_starHandle, SE_BGM_CS_STAR, 1);
 	s_starPlaying = true;
+}
+
+void dKPMusic::setVolume(float volume) {
+	// 1.0f is the default volume level
+	s_handle.SetTrackVolume(1<<1, FADE_IN_LEN, volume);
 }
 

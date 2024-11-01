@@ -1,6 +1,8 @@
 #include "koopatlas/mapdata.h"
 
 
+
+
 // HELPER FUNCTIONS
 dKPPath_s *dKPNode_s::getOppositeExitTo(dKPPath_s *path, bool mustBeAvailable) {
 	for (int i = 0; i < 4; i++) {
@@ -41,7 +43,7 @@ void dKPNode_s::setupNodeExtra() {
 
 	SaveBlock *save = GetSaveFile()->GetBlock(-1);
 	u32 conds = save->GetLevelCondition(world-1, level-1);
-
+	
 	bool isUnlocked = this->isUnlocked();
 	bool exitComplete = false;
 	bool secretComplete = false;
@@ -50,56 +52,96 @@ void dKPNode_s::setupNodeExtra() {
 		exitComplete = true;
 	if (conds & 0x20)
 		secretComplete = true;
-
-	const char *colour;
-
+	
 	//OSReport("Level %d-%d, isUnlocked: %d, exitComplete: %d", world, level, isUnlocked, exitComplete);
-
-	// default: non-unlocked levels AND completed one-time levels
-	colour = "g3d/black.brres";
-
-	// one-time levels
-	if ((level >= 30) && (level <= 37)) {
-		if (isUnlocked && !exitComplete)
-			colour = "g3d/red.brres";
-	}
-	// the shop
-	else if (level == 99)
-		colour = "g3d/shop.brres";
-
-	else if (level == 98)
-		colour = "g3d/starshop.brres";
 	
-	else if ((level >= 60) && (level <= 79))
-		colour = "g3d/bonus.brres";
+	const char *whichMdl;
+	const char *whichAnmClr;
 	
-	else if (isUnlocked) {
-		if (hasSecret) {
-			if (exitComplete && secretComplete)
-				colour = "g3d/blue.brres";
-			else if (exitComplete || secretComplete)
-				colour = "g3d/purple.brres";
-			else
-				colour = "g3d/red.brres";
-		} else {
-			if (exitComplete)
-				colour = "g3d/blue.brres";
-			else
-				colour = "g3d/red.brres";
+	// Defaults
+	whichMdl = "g3d/model.brres";
+	whichAnmClr = "cobCourseLocked";
+	
+	// Todo in the future if i care enough: make the start node one model and just use an anmtexpat to change which one it is depending on the level slot
+
+	// One-time levels
+	if ((level >= 30) && (level <= 36)) {
+		if (isUnlocked && !exitComplete) {
+			whichAnmClr = "cobCourseOpen";
 		}
 	}
+	
+	// Shops
+	else if (level == 99) {
+		if (isUnlocked) {
+			whichAnmClr = "cobCourseClear";
+		} else {
+			whichAnmClr = "cobCourseLocked";
+		}
+		
+	}
+	
+	// Sign
+	//else if (level == 98) {
+	//	whichMdl = "g3d/wmapsign.brres";
+	//}
+	
+	// Start Nodes
+	/*else if (level == 90)
+        whichMdl = "g3d/startRight.brres";
 
-	// model time
+    else if (level == 91)
+        whichMdl = "g3d/startLeft.brres";
+
+    else if (level == 92)
+        whichMdl = "g3d/startUp.brres";
+
+    else if (level == 93)
+        whichMdl = "g3d/startDown.brres";*/
+	
+	
+	// Regular Levels
+	else if (isUnlocked) {
+		if (hasSecret) {
+			if (exitComplete && secretComplete) {
+				whichAnmClr = "cobCourseClear";
+			}
+			else if (exitComplete || secretComplete) {
+				whichAnmClr = "cobCourseSecret";
+			}
+			else {
+				whichAnmClr = "cobCourseOpen";
+			}
+		} else {
+			if (exitComplete) {
+				whichAnmClr = "cobCourseClear";
+			}
+			else {
+				whichAnmClr = "cobCourseOpen";
+			}
+		}
+	}
+	
+	// Model time
 	this->extra->mallocator.link(-1, GameHeaps[0], 0, 0x20);
 
-	nw4r::g3d::ResFile rg(getResource("cobCourse", colour));
-	this->extra->model.setup(rg.GetResMdl("cobCourse"), &this->extra->mallocator, 0x224, 1, 0);
-	this->extra->matrix.identity();
+	nw4r::g3d::ResFile rg(getResource("cobCourse", whichMdl)); // Get our model
+	this->extra->model.setup(rg.GetResMdl("cobCourse"), &this->extra->mallocator, 0x32C, 1, 0); // Uses 0x32C instead of 0x224 so each node can have it's own CLR anim
 	SetupTextures_MapObj(&this->extra->model, 0);
+	this->extra->matrix.identity();
 
+
+	// Animation time
+	nw4r::g3d::ResAnmClr nodeCLR = rg.GetResAnmClr(whichAnmClr); // Get the anmClr we'll be using
+	this->extra->modelAnimClr.setup(rg.GetResMdl("cobCourse"), nodeCLR, &this->extra->mallocator, 0, 1);
+	
+	// Now bind the animation to the model
+	this->extra->modelAnimClr.bind(&this->extra->model, nodeCLR, 0, 0);
+	this->extra->model.bindAnim(&this->extra->modelAnimClr, 0.0);
+	
 	this->extra->mallocator.unlink();
 }
-
+	
 void dKPNode_s::setLayerAlpha(u8 alpha) {
 	if (tileLayer)
 		tileLayer->alpha = alpha;

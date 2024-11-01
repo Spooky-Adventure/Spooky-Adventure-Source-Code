@@ -6,5 +6,3 @@ hooks:
     type: branch_insn
     branch_type: b
     target_func: 'InsertPauseWindowText'
-
-

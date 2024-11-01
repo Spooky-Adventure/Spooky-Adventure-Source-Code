@@ -45,27 +45,24 @@ class PregameLytHandler {
 		void hijack_loadLevelNumber(); // replaces 80B6BDD0
 };
 
-// Notes:
-// Deleted; P_coinStage_00, T_recommend_00, T_worldNum_00,
-// T_-_00, T_pictureFont_00, T_corseNum_00, T_world_00
-// P_Wx_00, P_coin_00, P_free_00
-
 extern char CurrentLevel;
 extern char CurrentWorld;
 
-void LoadPregameStyleNameAndNumber(m2d::EmbedLayout_c *layout) {
+void loadLevelNameAndNumber(m2d::EmbedLayout_c *layout) {
 	nw4r::lyt::TextBox
-		*LevelNumShadow, *LevelNum,
-		*LevelNameShadow, *LevelName;
+		*T_levelName_00, *T_worldNum_00,
+		*T_corseNum_00, *T_pictureFont_00;
 
-	LevelNumShadow = layout->findTextBoxByName("LevelNumShadow");
-	LevelNum = layout->findTextBoxByName("LevelNum");
-	LevelNameShadow = layout->findTextBoxByName("LevelNameShadow");
-	LevelName = layout->findTextBoxByName("LevelName");
+	// Setup text panes
+	T_levelName_00 = layout->findTextBoxByName("T_levelName_00");
+	T_worldNum_00 = layout->findTextBoxByName("T_worldNum_00");
+	T_corseNum_00 = layout->findTextBoxByName("T_corseNum_00");
+	T_pictureFont_00 = layout->findTextBoxByName("T_pictureFont_00");
 
-	// work out the thing now
+	// Work out the thing now
 	dLevelInfo_c::entry_s *level = dLevelInfo_c::s_info.searchBySlot(CurrentWorld, CurrentLevel);
 	if (level) {
+		// Level Name
 		wchar_t convLevelName[160];
 		const char *srcLevelName = dLevelInfo_c::s_info.getNameForLevel(level);
 		int i = 0;
@@ -74,46 +71,57 @@ void LoadPregameStyleNameAndNumber(m2d::EmbedLayout_c *layout) {
 			i++;
 		}
 		convLevelName[i] = 0;
-		LevelNameShadow->SetString(convLevelName);
-		LevelName->SetString(convLevelName);
+		T_levelName_00->SetString(convLevelName);
 
-		wchar_t levelNumber[32];
-		wcscpy(levelNumber, L"World ");
-		getNewerLevelNumberString(level->displayWorld, level->displayLevel, &levelNumber[6]);
-
-		LevelNum->SetString(levelNumber);
-
-		// make the picture shadowy
-		int sidx = 0;
-		while (levelNumber[sidx]) {
-			if (levelNumber[sidx] == 11) {
-				levelNumber[sidx+1] = 0x200 | (levelNumber[sidx+1]&0xFF);
-				sidx += 2;
-			}
-			sidx++;
+		// Level Number
+		wchar_t worldNumber[16];
+		getWorldNumber(level->displayWorld, worldNumber);
+		T_worldNum_00->SetString(worldNumber);
+		
+		
+		wchar_t levelNumber[16];
+		getLevelNumber(level->displayLevel, levelNumber);
+		if (showCoursePic) {
+			T_corseNum_00->SetVisible(false);
+			T_pictureFont_00->SetVisible(true);
+			T_pictureFont_00->SetString(levelNumber);
+		} else {
+			T_pictureFont_00->SetVisible(false);
+			T_corseNum_00->SetVisible(true);
+			T_corseNum_00->SetString(levelNumber);
 		}
-		LevelNumShadow->SetString(levelNumber);
 
 	} else {
-		LevelNameShadow->SetString(L"Not found in LevelInfo!");
-		LevelName->SetString(L"Not found in LevelInfo!");
+		T_levelName_00->SetString(L"Unknown Level Name!");
+		T_worldNum_00->SetString(L"?");
+		T_corseNum_00->SetString(L"?");
 	}
 }
 
 #include "fileload.h"
 void PregameLytHandler::hijack_loadLevelNumber() {
-	LoadPregameStyleNameAndNumber(&layout);
+	loadLevelNameAndNumber(&layout);
+	WriteBMGToTextBox(layout.findTextBoxByName("T_world_00"), GetBMG(), 102, 31, 0); // World text
 
-	nw4r::lyt::Picture *LevelSample;
-	LevelSample = layout.findPictureByName("LevelSample");
+	nw4r::lyt::Picture *P_worldSample_00;
+	P_worldSample_00 = layout.findPictureByName("P_worldSample_00");
+	
+	// Make it visible in-case it wasn't
+	P_worldSample_00->SetVisible(true);
 
-	// this is not the greatest way to read a file but I suppose it works in a pinch
+	// This is not the greatest way to read a file but I suppose it works in a pinch
 	char tplName[64];
-	sprintf(tplName, "/LevelSamples/%02d-%02d.tpl", CurrentWorld+1, CurrentLevel+1);
+	sprintf(tplName, "/WorldSample/%02d-%02d.tpl", CurrentWorld+1, CurrentLevel+1);
+	
 	static File tpl;
 	if (tpl.open(tplName)) {
-		LevelSample->material->texMaps[0].ReplaceImage((TPLPalette*)tpl.ptr(), 0);
+		// Apply the background image to our pane
+		P_worldSample_00->material->texMaps[0].ReplaceImage((TPLPalette*)tpl.ptr(), 0);
+	} else {
+		// Hide the pane, the fail background pane that's underneath will be seen
+		P_worldSample_00->SetVisible(false);
 	}
+	
 }
 
 

@@ -43,23 +43,62 @@ hooks:
     src_addr_pal: 0x807EF26C
     target_func: 'TEX_RollingHills'
 
-
-
-# The below was added by Tempus
-
+# Added by MandyIGuess
   - name: TEX_Polter
     type: branch_insn
     branch_type: bl
     src_addr_pal: 0x80a86940
     target_func: 'TEX_Polter'
 
+  # Non-poltergeist Ghost House stands, this loads the same model as the poltergeist stand, so not spritetexxing this crashes the game
+  - name: TEX_Stand
+    type: branch_insn
+    branch_type: bl
+    src_addr_pal: 0x808a9ed0
+    target_func: 'TEX_Stand'
+  
+  # Fragments when poltergeist stands break, not spritetexxing this also causes a crash
+  - name: TEX_StandFix
+    type: branch_insn
+    branch_type: bl
+    src_addr_pal: 0x80090658
+    target_func: 'TEX_StandFix'
+
+  - name: TEX_Signboard
+    type: branch_insn
+    branch_type: bl
+    src_addr_pal: 0x8081cb18
+    target_func: 'TEX_Signboard'
+
+  # Red and Green Spinning ones
+  - name: TEX_RotateMush
+    type: branch_insn
+    branch_type: bl
+    src_addr_pal: 0x8089a938
+    target_func: 'TEX_RotateMush'
+
+  - name: TEX_RotateMushPink
+    type: branch_insn
+    branch_type: bl
+    src_addr_pal: 0x80857550
+    target_func: 'TEX_RotateMushPink'
+
+  # Giant spike walls from retail 5-Tower
+  - name: TEX_TowerSpikeWall
+    type: branch_insn
+    branch_type: bl
+    src_addr_pal: 0x80a5e4b8
+    target_func: 'TEX_TowerSpikeWall'
+
+# The below was added by Tempus
+    
   - name: TEX_Goomba
     type: branch_insn
     branch_type: bl
     src_addr_pal: 0x80031384
     target_func: 'TEX_Goomba'
 
-
+    
   - name: TEX_BigGoomba
     type: branch_insn
     branch_type: bl
@@ -894,4 +933,10 @@ hooks:
     branch_type: bl
     src_addr_pal: 0x80AAE8E0
     target_func: 'BooZOrder'
-
+    
+    
+  - name: TEX_Polter
+    type: branch_insn
+    branch_type: bl
+    src_addr_pal: 0x80a86940
+    target_func: 'TEX_Polter'

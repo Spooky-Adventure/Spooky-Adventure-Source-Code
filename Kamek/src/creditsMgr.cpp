@@ -158,7 +158,7 @@ int dCreditsMgr_c::onCreate() {
 	if (!loadTitleLayout())
 		return false;
 
-	if (!scriptLoader.load("/NewerRes/NewerStaffRoll.bin"))
+	if (!scriptLoader.load("/SpookyRes/NewerStaffRoll.bin"))
 		return false;
 
 	scriptPos = (const u8*)scriptLoader.buffer;
@@ -341,8 +341,7 @@ int dCreditsMgr_c::onExecute() {
 					titleLayoutVisible = false;
 					break;
 				case 10:
-					whatAnim = *(read++);
-					titleLayout.enableNonLoopAnim(whatAnim);
+					titleLayout.enableNonLoopAnim(0);
 					break;
 
 				case 11:
@@ -404,14 +403,14 @@ int dCreditsMgr_c::onDraw() {
 
 bool dCreditsMgr_c::loadLayout() {
 	if (!layoutLoaded) {
-		if (!layout.loadArc("StaffRoll.arc", false))
+		if (!layout.loadArc("staffRoll.arc", false))
 			return false;
 
-		layout.build("StaffRoll.brlyt");
+		layout.build("staffRoll.brlyt");
 
 		static const char *brlanNames[] = {
-			"StaffRoll_show.brlan",
-			"StaffRoll_hide.brlan",
+			"staffRoll_show.brlan",
+			"staffRoll_hide.brlan",
 		};
 		static const char *groupNames[] = {
 			"TheOnlyGroup", "TheOnlyGroup"
@@ -443,23 +442,22 @@ bool dCreditsMgr_c::loadLayout() {
 
 bool dCreditsMgr_c::loadTitleLayout() {
 	if (!titleLayoutLoaded) {
-		if (!titleLayout.loadArc("StaffRollTitle.arc", false))
+		if (!titleLayout.loadArc("staffRollTitle.arc", false))
 			return false;
 
-		titleLayout.build("StaffRollTitle.brlyt");
+		titleLayout.build("staffRollTitle.brlyt");
 
 		static const char *brlanNames[] = {
-			"StaffRollTitle_appear1.brlan",
-			"StaffRollTitle_appear2.brlan",
+			"staffRollTitle_inLogo.brlan",
 		};
 		static const char *groupNames[] = {
-			"TheOnlyGroup", "TheOnlyGroup"
+			"A00_Title",
 		};
 
-		titleLayout.loadAnimations(brlanNames, 2);
-		titleLayout.loadGroups(groupNames, (int[2]){0, 1}, 2);
+		titleLayout.loadAnimations(brlanNames, 1);
+		titleLayout.loadGroups(groupNames, (int[1]){0}, 1);
 		titleLayout.disableAllAnimations();
-		titleLayout.resetAnim(1);
+		//titleLayout.resetAnim(0);
 
 		float propScale = 1.3f;
 		if (!IsWideScreen())

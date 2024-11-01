@@ -53,7 +53,7 @@ struct dKPPath_s;
 
 struct dKPNode_s {
 	enum NodeTypes {
-		PASS_THROUGH, STOP, LEVEL, CHANGE, WORLD_CHANGE
+		PASS_THROUGH, STOP, LEVEL, CHANGE, WORLD_CHANGE, SIGN
 	};
 
 	short x, y;
@@ -78,9 +78,10 @@ struct dKPNode_s {
 	// The union is placed at the very end so we can leave out padding in the
 	// kpbin
 	union {
-		struct { u8 levelNumber[2]; bool hasSecret; };
-		struct { const char *destMap; u8 thisID, foreignID, transition, _; };
-		struct { u8 worldID, __[3]; };
+		/* LEVEL 		*/ struct { u8 levelNumber[2]; bool hasSecret; };
+		/* CHANGE		*/ struct { const char *destMap; u8 thisID, foreignID, transition, _; };
+		/* WORLD_CHANGE */ struct { u8 worldID, __[3]; };
+		/* SIGN 		*/ struct { u8 messageID; };
 	};
 
 	dKPPath_s *getAnyExit() {
@@ -92,6 +93,7 @@ struct dKPNode_s {
 
 	bool isUnlocked();
 	void setupNodeExtra();
+	
 
 	dKPPath_s *getOppositeExitTo(dKPPath_s *path, bool mustBeAvailable=false);
 	dKPPath_s *getOppositeAvailableExitTo(dKPPath_s *path) {
@@ -290,6 +292,8 @@ class dKPNodeExtra_c {
 		mHeapAllocator_c mallocator;
 		mMtx matrix;
 		m3d::mdl_c model;
+		m3d::anmClr_c modelAnimClr;
+		//m3d::anmTexPat_c modelTexPat;
 };
 
 #endif
